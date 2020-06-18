@@ -1,52 +1,60 @@
-let tail = []
-let fruitPos = null
-let enemyPositions = []
 let tileHeight;
 let tileWidth;
 let game;
-let playerMoving = RIGHT;
+let playerMoving = D_RIGHT;
+let playerMoveCount = 0;
+let enemyMoveCount = 0;
 let lastMove = playerMoving;
 let backgroundMusic;
+
 let toiletImg;
 let keyFrameMode = false;
 let nextFrameRequested = false;
 let restart = true;
+let alessiImg;
+let anubisImg;
+let death_13Img;
+let devoImg;
+let dioImg;
+let enyaImg;
+let holImg;
+let geilImg;
+let creamImg;
 
 function preload() {
     soundFormats('mp3')
     backgroundMusic = loadSound("sounds/sdc.mp3")
     toiletImg = loadImage('images/toilet.png');
+    alessiImg = loadImage('images/alessi.png')
+    anubisImg = loadImage('images/anubis.png')
+    death_13Img = loadImage('images/death_13.png')
+    devoImg = loadImage('images/devo_ebony_devil.png')
+    dioImg = loadImage('images/dio.jpg')
+    enyaImg = loadImage('images/enya.png')
+    holImg = loadImage('images/hol_horse.png')
+    geilImg = loadImage('images/j_geil_hanged man.jpg')
+    creamImg = loadImage('images/vanilla_ice_cream.png')
 }
 
-let playerMoveCount = 0;
-let enemyMoveCount = 0;
-
-function drawPieces() {
-    let tail = game.tail;
-    for (let piece of tail) {
-        fill(255, 0, 0);
-        rect(piece.x * tileWidth, piece.y * tileHeight, tileWidth, tileHeight);
-    }
-
-    for (let enemyPos of game.enemyPositions) {
-        fill(0, 255, 0);
-        rect(enemyPos.x * tileWidth, enemyPos.y * tileHeight, tileWidth, tileHeight);
-    }
-
-    fill(255, 255, 255);
-    image(toiletImg, game.fruitPos.x * tileWidth, game.fruitPos.y * tileHeight, tileWidth, tileHeight);
-
-}
 
 function setup() {
     getAudioContext().suspend()
-    createCanvas(400, 400);
+    createCanvas(800, 800);
     frameRate(60);
+    enemyInfos = [
+        [alessiImg, () => null, () => null]
+            [anubisImg, () => null, () => null],
+        [death_13Img, () => null, () => null],
+        [devoImg, () => null, () => null],
+        [dioImg, () => null, () => null],
+        [enyaImg, () => null, () => null],
+        [holImg, () => null, () => null],
+        [geilImg, () => null, () => null],
+        [creamImg, () => null, () => null],
+    ]
     game = new Game();
     tileWidth = width / game.width;
     tileHeight = height / game.height;
-
-    drawPieces();
     backgroundMusic.loop()
 }
 
@@ -82,15 +90,25 @@ function draw() {
 
     if (!keyFrameMode) {
         frame_generator.next();
-    }
-    else if (keyFrameMode) {
+    } else if (keyFrameMode) {
         if (nextFrameRequested) {
             frame_generator.next();
             nextFrameRequested = false;
         }
     }
 
-    drawPieces();
+    fill(255, 255, 255);
+    image(toiletImg, game.fruitPos.x * tileWidth, game.fruitPos.y * tileHeight, tileWidth, tileHeight);
+
+    let tail = game.tail;
+    for (let piece of tail) {
+        fill(255, 0, 0);
+        rect(piece.x * tileWidth, piece.y * tileHeight, tileWidth, tileHeight);
+    }
+
+    for (let enemy of game.enemies) {
+        image(enemy.sprite, enemy.position.x * tileWidth, enemy.position.y * tileHeight, tileWidth, tileHeight);
+    }
 
 }
 
@@ -99,32 +117,31 @@ function keyPressed() {
     let requestedChange;
     switch (keyCode) {
         case LEFT_ARROW:
-            requestedChange = LEFT;
+            requestedChange = D_LEFT;
             break
         case RIGHT_ARROW:
-            requestedChange = RIGHT;
-            break
-        case UP_ARROW:
-            requestedChange = UP;
-            break
-        case DOWN_ARROW:
-            requestedChange = DOWN;
-            break
-
-        case 65:
-            requestedChange = LEFT;
-            break
-        case 68:
-            requestedChange = RIGHT;
             if (keyFrameMode) {
                 nextFrameRequested = true;
             }
+            requestedChange = D_RIGHT;
+            break
+        case UP_ARROW:
+            requestedChange = D_UP;
+            break
+        case DOWN_ARROW:
+            requestedChange = D_DOWN;
+            break
+        case 65:
+            requestedChange = D_LEFT;
+            break
+        case 68:
+            requestedChange = D_RIGHT;
             break
         case 87:
-            requestedChange = UP;
+            requestedChange = D_UP;
             break
         case 83:
-            requestedChange = DOWN;
+            requestedChange = D_DOWN;
             break
         case 75: // k - keyframe mode
             keyFrameMode = !keyFrameMode;
@@ -134,23 +151,23 @@ function keyPressed() {
             break
     }
     if (requestedChange !== undefined) {
-        if (lastMove === LEFT) {
-            if (requestedChange !== RIGHT) {
+        if (lastMove === D_LEFT) {
+            if (requestedChange !== D_RIGHT) {
                 playerMoving = requestedChange
             }
         }
-        if (lastMove === RIGHT) {
-            if (requestedChange !== LEFT) {
+        if (lastMove === D_RIGHT) {
+            if (requestedChange !== D_LEFT) {
                 playerMoving = requestedChange
             }
         }
-        if (lastMove === UP) {
-            if (requestedChange !== DOWN) {
+        if (lastMove === D_UP) {
+            if (requestedChange !== D_DOWN) {
                 playerMoving = requestedChange
             }
         }
-        if (lastMove === DOWN) {
-            if (requestedChange !== UP) {
+        if (lastMove === D_DOWN) {
+            if (requestedChange !== D_UP) {
                 playerMoving = requestedChange
             }
         }

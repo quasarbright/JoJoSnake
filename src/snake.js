@@ -1,27 +1,33 @@
-let UP = "UP"
-let DOWN = "DOWN"
-let LEFT = "LEFT"
-let RIGHT = "RIGHT"
+let enemyInfos;
 
-DIRECTIONS = new Map([["UP", UP], ["DOWN", DOWN], ["LEFT", LEFT], ["RIGHT", RIGHT]]);
+let D_UP = "D_UP"
+let D_DOWN = "D_DOWN"
+let D_LEFT = "D_LEFT"
+let D_RIGHT = "D_RIGHT"
+
+DIRECTIONS = new Map([["D_UP", D_UP], ["D_DOWN", D_DOWN], ["D_LEFT", D_LEFT], ["D_RIGHT", D_RIGHT]]);
 
 function vectorOfDirection(direction) {
     switch (direction) {
-        case UP:
+        case D_UP:
             return createVector(0, -1);
             break;
-        case DOWN:
+        case D_DOWN:
             return createVector(0, 1);
             break;
-        case LEFT:
+        case D_LEFT:
             return createVector(-1, 0);
             break;
-        case RIGHT:
+        case D_RIGHT:
             return createVector(1, 0);
             break;
         default:
             console.error(direction);
     }
+}
+
+function choose(list) {
+    return list[Math.floor(Math.random() * list.length)]
 }
 
 class Game {
@@ -40,12 +46,12 @@ class Game {
         this.tail = [createVector(floor(this.width / 2), floor(this.height / 2))]
         this.fruitPos = null
         this.respawnFruit()
-        this.enemyPositions = [] // list of vectors
+        this.enemies = []
         this.spawnEnemy()
     }
 
     getEnemyPositions() {
-        return this.enemyPositions
+        return this.enemies.map(e => e.position)
     }
 
     getHead() {
@@ -92,7 +98,7 @@ class Game {
 
     generatePositionNotInTail() {
         let goodPositions = this.allPositions.filter((pos) => !this.isInTail(pos) && !pos.equals(this.getHead()))
-        return goodPositions[Math.floor(Math.random() * goodPositions.length)]
+        return choose(goodPositions)
     }
 
 
@@ -106,7 +112,7 @@ class Game {
     }
 
     addEnemy(enemy) {
-        this.enemyPositions.push(enemy)
+        this.enemies.push(enemy)
     }
 
     takeHit() {
@@ -123,8 +129,8 @@ class Game {
         if (this.dead) {
             return;
         }
-        for (let enemy of this.enemyPositions) {
-            let direction = p5.Vector.sub(player, enemy);
+        for (let enemy of this.enemies) {
+            let direction = p5.Vector.sub(player, enemy.position);
             let max_value = Number.NEGATIVE_INFINITY;
             let max_direction;
             for (let value of DIRECTIONS.values()) {
@@ -134,26 +140,35 @@ class Game {
                     max_direction = dirVector;
                 }
             }
-            // console.log("moving enemy in direction");
-            // console.log(max_direction);
-
-            enemy.add(max_direction);
+            enemy.position.add(max_direction);
         }
 
         // check if enemies are at player
-        for (let i = this.enemyPositions.length - 1; i >= 0; i--) {//let enemy of this.enemyPositions) {
-            let enemy = this.enemyPositions[i]
-            if (enemy.equals(player)) {
+        for (let i = this.enemies.length - 1; i >= 0; i--) {
+            let enemy = this.enemies[i]
+            if (enemy.position.equals(player)) {
                 this.takeHit();
-                this.enemyPositions.splice(i,1)
+                this.enemies.splice(i,1)
+                enemy.onDeath()
                 this.spawnEnemy()
             }
         }
     }
 
     spawnEnemy() {
-        this.addEnemy(this.generatePositionNotInTail())
+        let [sprite, onSpawn, onDeath] = choose(enemyInfos)
+        let position = this.generatePositionNotInTail()
+        let enemy = new Enemy(position, sprite, onSpawn, onDeath)
+        this.addEnemy(enemy)
+        enemy.onSpawn()
     }
+}
 
-
+class Enemy {
+    constructor(position, sprite, onSpawn, onDeath) {
+        this.position = position
+        this.sprite = sprite
+        this.onSpawn = onSpawn
+        this.onDeath = onDeath
+    }
 }
