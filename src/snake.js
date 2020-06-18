@@ -23,6 +23,7 @@ function vectorOfDirection(direction) {
 }
 
 class Game {
+
     constructor() {
         // first ele is head, rest is tail
         this.dead = false
@@ -48,7 +49,7 @@ class Game {
     }
 
     randomVector() {
-        return createVector(random(0, this.width), random(0, this.height))
+        return createVector(floor(random(0, this.width)), floor(random(0, this.height)))
     }
 
     isInTail(pos) {
@@ -106,8 +107,21 @@ class Game {
         this.dead = this.dead || this.shouldBeDead()
     }
 
-    updateEnemies() {
+    addEnemy(enemy) {
+        this.enemyPositions.push(enemy)
+    }
 
+    updateEnemies() {
+        let player = this.getHead()
+        for (let enemy of this.enemyPositions) {
+            let direction = p5.Vector.sub(enemy, player)
+            if (abs(direction.x) > 0) {
+                enemy.x += (direction.x / direction.x)
+            }
+            else if (abs(direction.y) > 0) {
+                enemy.y += (direction.y / direction.y)
+            }
+        }
     }
 
 
