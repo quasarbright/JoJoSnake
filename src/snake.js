@@ -32,7 +32,8 @@ class Game {
         this.width = 15
         this.height = 15
         this.tail = [createVector(floor(this.width / 2), floor(this.height / 2))]
-        this.fruitPos = createVector(0,0)
+        this.fruitPos = null
+        this.respawnFruit()
         this.enemyPositions = [] // list of vectors
         this.allPositions = []
         for(let x = 0; x < this.width; x++) {
@@ -70,7 +71,7 @@ class Game {
             direction = vectorOfDirection(direction)
             let newPos = p5.Vector.add(this.getHead(), direction)
             this.tail.unshift(newPos)
-            if(this.getHead() === this.fruitPos) {
+            if(this.getHead().equals(this.fruitPos)) {
                 this.respawnFruit()
             } else {
                 this.tail.pop()
