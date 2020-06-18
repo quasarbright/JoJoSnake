@@ -87,7 +87,7 @@ class Game {
 
 
     respawnFruit() {
-        this.fruitPos = this.generatePositionNotInTail()
+        this.fruitPos = this.generatePositionNotInTail();
     }
 
     generatePositionNotInTail() {
