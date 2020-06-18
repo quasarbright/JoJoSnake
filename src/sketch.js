@@ -1,19 +1,16 @@
-let tail = []
-let fruitPos = null
-let enemyPositions = []
 let tileHeight;
 let tileWidth;
 let game;
-let playerMoving = RIGHT;
+let playerMoving = D_RIGHT;
 let backgroundMusic;
+let playerMoveCount = 0;
+let enemyMoveCount = 0;
 
 function preload() {
   soundFormats('mp3')
   backgroundMusic = loadSound("sounds/sdc.mp3")
 }
 
-let playerMoveCount = 0;
-let enemyMoveCount = 0;
 
 function setup() {
     getAudioContext().suspend()
@@ -28,7 +25,7 @@ function setup() {
         rect(piece.x * tileWidth, piece.y * tileHeight, tileWidth, tileHeight);
     }
 
-    for (let enemyPos of game.enemyPositions) {
+    for (let enemyPos of game.getEnemyPositions()) {
         fill(0, 255, 0);
         rect(enemyPos.x * tileWidth, enemyPos.y * tileHeight, tileWidth, tileHeight);
     }
@@ -63,7 +60,7 @@ function draw() {
         enemyMoveCount += 1;
     }
 
-    for (let enemyPos of game.enemyPositions) {
+    for (let enemyPos of game.getEnemyPositions()) {
         fill(0, 255, 0);
         rect(enemyPos.x * tileWidth, enemyPos.y * tileHeight, tileWidth, tileHeight);
     }
@@ -74,29 +71,29 @@ function keyPressed() {
     userStartAudio()
     switch (keyCode) {
         case LEFT_ARROW:
-            playerMoving = LEFT;
+            playerMoving = D_LEFT;
             break
         case RIGHT_ARROW:
-            playerMoving = RIGHT;
+            playerMoving = D_RIGHT;
             break
         case UP_ARROW:
-            playerMoving = UP;
+            playerMoving = D_UP;
             break
         case DOWN_ARROW:
-            playerMoving = DOWN;
+            playerMoving = D_DOWN;
             break
 
         case 65:
-            playerMoving = LEFT;
+            playerMoving = D_LEFT;
             break
         case 68:
-            playerMoving = RIGHT;
+            playerMoving = D_RIGHT;
             break
         case 87:
-            playerMoving = UP;
+            playerMoving = D_UP;
             break
         case 83:
-            playerMoving = DOWN;
+            playerMoving = D_DOWN;
             break
     }
 }
