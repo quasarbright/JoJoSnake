@@ -6,7 +6,7 @@ let RIGHT = "RIGHT"
 DIRECTIONS = new Map([["UP", UP], ["DOWN", DOWN], ["LEFT", LEFT], ["RIGHT", RIGHT]]);
 
 function vectorOfDirection(direction) {
-    switch(direction) {
+    switch (direction) {
         case UP:
             return createVector(0, -1);
             break;
@@ -32,20 +32,20 @@ class Game {
         this.width = 15
         this.height = 15
         this.tail = [createVector(floor(this.width / 2), floor(this.height / 2))]
-        this.fruitPos = createVector(0,0)
+        this.fruitPos = createVector(0, 0)
         this.enemyPositions = [] // list of vectors
         this.allPositions = []
-        for(let x = 0; x < this.width; x++) {
-            for(let y = 0; y < this.height; y++) {
+        for (let x = 0; x < this.width; x++) {
+            for (let y = 0; y < this.height; y++) {
                 this.allPositions.push(createVector(x, y))
             }
         }
     }
-    
+
     getEnemyPositions() {
         return this.enemyPositions
     }
-    
+
     getHead() {
         return this.tail[0]
     }
@@ -66,11 +66,11 @@ class Game {
     }
 
     movePlayer(direction) {
-        if(!this.dead) {
+        if (!this.dead) {
             direction = vectorOfDirection(direction)
             let newPos = p5.Vector.add(this.getHead(), direction)
             this.tail.unshift(newPos)
-            if(this.getHead() === this.fruitPos) {
+            if (this.getHead().equals(this.fruitPos)) {
                 this.respawnFruit()
             } else {
                 this.tail.pop()
@@ -84,7 +84,6 @@ class Game {
     }
 
 
-
     respawnFruit() {
         this.fruitPos = this.generatePositionNotInTail()
     }
@@ -96,9 +95,7 @@ class Game {
 
     shouldBeDead() {
         let head = this.getHead()
-        if(this.isInTail(head)) {
-            return true
-        } else return !this.isInBounds(head);
+        return this.isInTail(head) || !this.isInBounds(head);
     }
 
     updateDead() {
@@ -109,8 +106,20 @@ class Game {
         this.enemyPositions.push(enemy)
     }
 
+    takeHit() {
+        if (this.tail.length > 0) {
+            this.tail.pop();
+        }
+        if (this.tail.length === 0) {
+            this.dead = true;
+        }
+    }
+
     updateEnemies() {
         let player = this.getHead()
+        if (player === undefined) {
+            return;
+        }
         for (let enemy of this.enemyPositions) {
             let direction = p5.Vector.sub(player, enemy);
             let max_value = Number.NEGATIVE_INFINITY;
@@ -122,7 +131,17 @@ class Game {
                     max_direction = dirVector;
                 }
             }
+            console.log("moving enemy in direction");
+            console.log(max_direction);
+
             enemy.add(max_direction);
+        }
+
+        // check if enemies are at player
+        for (let enemy of this.enemyPositions) {
+            if (enemy.equals(player)) {
+                this.takeHit();
+            }
         }
     }
 
