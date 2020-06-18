@@ -19,6 +19,7 @@ let playerMoveCount = 0;
 let enemyMoveCount = 0;
 
 function setup() {
+    getAudioContext().suspend()
     createCanvas(400, 400);
     frameRate(60);
     game = new Game();
@@ -77,6 +78,7 @@ function draw() {
 }
 
 function keyPressed() {
+    userStartAudio()
     switch (keyCode) {
         case LEFT_ARROW:
             playerMoving = LEFT;
@@ -104,4 +106,8 @@ function keyPressed() {
             playerMoving = DOWN;
             break
     }
+}
+
+function mousePressed() {
+    userStartAudio()
 }
