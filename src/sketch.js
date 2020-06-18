@@ -5,6 +5,7 @@ let tileHeight;
 let tileWidth;
 let game;
 let playerMoving = RIGHT;
+let lastMove = playerMoving;
 let backgroundMusic;
 let toiletImg;
 
@@ -49,6 +50,7 @@ function draw() {
     image(toiletImg, game.fruitPos.x * tileWidth, game.fruitPos.y * tileHeight, tileWidth, tileHeight);
 
     if (playerMoveCount % 10 === 0) {
+        lastMove = playerMoving;
         game.movePlayer(playerMoving);
         enemyMoveCount += 1;
         enemyMoveCount %= 3;
@@ -76,32 +78,55 @@ function draw() {
 
 function keyPressed() {
     userStartAudio()
+    let requestedChange;
     switch (keyCode) {
         case LEFT_ARROW:
-            playerMoving = LEFT;
+            requestedChange = LEFT;
             break
         case RIGHT_ARROW:
-            playerMoving = RIGHT;
+            requestedChange = RIGHT;
             break
         case UP_ARROW:
-            playerMoving = UP;
+            requestedChange = UP;
             break
         case DOWN_ARROW:
-            playerMoving = DOWN;
+            requestedChange = DOWN;
             break
 
         case 65:
-            playerMoving = LEFT;
+            requestedChange = LEFT;
             break
         case 68:
-            playerMoving = RIGHT;
+            requestedChange = RIGHT;
             break
         case 87:
-            playerMoving = UP;
+            requestedChange = UP;
             break
         case 83:
-            playerMoving = DOWN;
+            requestedChange = DOWN;
             break
+    }
+    if (requestedChange !== undefined) {
+        if (lastMove === LEFT) {
+            if (requestedChange !== RIGHT) {
+                playerMoving = requestedChange
+            }
+        }
+        if (lastMove === RIGHT) {
+            if (requestedChange !== LEFT) {
+                playerMoving = requestedChange
+            }
+        }
+        if (lastMove === UP) {
+            if (requestedChange !== DOWN) {
+                playerMoving = requestedChange
+            }
+        }
+        if (lastMove === DOWN) {
+            if (requestedChange !== UP) {
+                playerMoving = requestedChange
+            }
+        }
     }
 }
 
