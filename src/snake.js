@@ -89,7 +89,7 @@ class Game {
     }
 
     generatePositionNotInTail() {
-        return this.allPositions.filter((pos) => !this.isInTail(pos) && !pos.equals(this.head()))
+        return this.allPositions.filter((pos) => !this.isInTail(pos) && !pos.equals(this.getHead()))
     }
 
 
