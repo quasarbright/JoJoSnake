@@ -31,16 +31,16 @@ class Game {
         this.dead = false
         this.width = 15
         this.height = 15
-        this.tail = [createVector(floor(this.width / 2), floor(this.height / 2))]
-        this.fruitPos = null
-        this.respawnFruit()
-        this.enemyPositions = [] // list of vectors
         this.allPositions = []
         for(let x = 0; x < this.width; x++) {
             for(let y = 0; y < this.height; y++) {
                 this.allPositions.push(createVector(x, y))
             }
         }
+        this.tail = [createVector(floor(this.width / 2), floor(this.height / 2))]
+        this.fruitPos = null
+        this.respawnFruit()
+        this.enemyPositions = [] // list of vectors
     }
     
     getEnemyPositions() {
@@ -91,7 +91,8 @@ class Game {
     }
 
     generatePositionNotInTail() {
-        return this.allPositions.filter((pos) => !this.isInTail(pos) && !pos.equals(this.getHead()))
+        let goodPositions = this.allPositions.filter((pos) => !this.isInTail(pos) && !pos.equals(this.getHead()))
+        return goodPositions[Math.floor(Math.random() * goodPositions.length)]
     }
 
 
