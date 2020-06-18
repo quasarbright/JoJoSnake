@@ -7,7 +7,6 @@ let game;
 let playerMoving = RIGHT;
 let backgroundMusic;
 let toiletImg;
-let toiletSprite;
 
 function preload() {
     soundFormats('mp3')
@@ -38,8 +37,7 @@ function setup() {
 
     game.addEnemy(createVector(floor(random(0, game.width)), floor(random(0, game.height))));
 
-    toiletSprite = createSprite(game.fruitPos.x * tileWidth, game.fruitPos.y * tileHeight, tileWidth, tileHeight);
-    toiletSprite.addImage(toiletImg);
+    image(toiletImg, game.fruitPos.x * tileWidth, game.fruitPos.y * tileHeight, tileWidth, tileHeight);
     backgroundMusic.loop()
 }
 
@@ -48,8 +46,7 @@ function draw() {
     background(51);
 
     fill(255, 255, 255);
-    let fruitPos = game.fruitPos;
-    rect(fruitPos.x * tileWidth, fruitPos.y * tileWidth, tileWidth, tileHeight);
+    image(toiletImg, game.fruitPos.x * tileWidth, game.fruitPos.y * tileHeight, tileWidth, tileHeight);
 
     if (playerMoveCount % 10 === 0) {
         game.movePlayer(playerMoving);
