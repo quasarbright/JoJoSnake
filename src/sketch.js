@@ -75,14 +75,4 @@ function keyPressed() {
             playerMoving = DOWN;
             break
     }
-    playerMoving.x = x;
-    playerMoving.y = y;
-}
-
-function movePlayer(direction) {
-
-}
-
-function updateEnemies() {
-
 }

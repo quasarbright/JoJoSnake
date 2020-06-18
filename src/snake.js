@@ -1,24 +1,24 @@
-UP = "UP"
-DOWN = "DOWN"
-LEFT = "LEFT"
-RIGHT = "RIGHT"
+let UP = "UP"
+let DOWN = "DOWN"
+let LEFT = "LEFT"
+let RIGHT = "RIGHT"
 
 function vectorOfDirection(direction) {
     switch(direction) {
         case UP:
-            return createVector(0, -1)
-            break
+            return createVector(0, -1);
+            break;
         case DOWN:
-            return createVector(0, 1)
-            break
+            return createVector(0, 1);
+            break;
         case LEFT:
-            return createVector(-1, 0)
-            break
+            return createVector(-1, 0);
+            break;
         case RIGHT:
-            return createVector(1, 0)
-            break
+            return createVector(1, 0);
+            break;
         default:
-            console.error(direction)
+            console.error(direction);
     }
 }
 
@@ -29,9 +29,15 @@ class Game {
         this.dead = false
         this.width = 15
         this.height = 15
-        this.tail = [this.randomVector()]
+        this.tail = [createVector(floor(this.width / 2), floor(this.height / 2))]
         this.fruitPos = createVector(0,0)
         this.enemyPositions = [] // list of vectors
+        this.allPositions = []
+        for(let x = 0; x < this.width; x++) {
+            for(let y = 0; y < this.height; y++) {
+                this.allPositions.push(createVector(x, y))
+            }
+        }
     }
     
     getEnemyPositions() {
@@ -41,13 +47,15 @@ class Game {
     getHead() {
         return this.tail[0]
     }
+
     randomVector() {
         return createVector(floor(random(0, this.width)), floor(random(0, this.height)))
     }
 
     isInTail(pos) {
+        // DOESN'T INCLUDE HEAD
         let ans = false
-        this.tail.forEach(tailPos => {
+        this.tail.slice(1).forEach(tailPos => {
             if (pos.equals(tailPos)) {
                 ans = true
             }
@@ -57,7 +65,14 @@ class Game {
 
     movePlayer(direction) {
         if(!this.dead) {
-
+            direction = vectorOfDirection(direction)
+            let newPos = p5.Vector.add(this.getHead(), direction)
+            this.tail.unshift(newPos)
+            if(this.head() == this.fruitPos) {
+                this.respawnFruit()
+            } else {
+                this.tail.pop()
+            }
         }
         this.updateDead()
     }
@@ -66,14 +81,20 @@ class Game {
         return pos.x >= 0 && pos.x < this.width && pos.y >= 0 && pos.y < this.height
     }
 
+
+
     respawnFruit() {
-        
+        this.fruitPos = this.generatePositionNotInTail()
+    }
+
+    generatePositionNotInTail() {
+        return this.allPositions.filter((pos) => !this.isInTail(pos) && !pos.equals(this.head()))
     }
 
 
     shouldBeDead() {
         let head = this.getHead()
-        if(this.isInTail(this.tail[0])) {
+        if(this.isInTail(head)) {
             return true
         } else if(!this.isInBounds(head)) {
             return true
