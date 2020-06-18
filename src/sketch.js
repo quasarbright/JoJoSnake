@@ -5,6 +5,12 @@ let tileHeight;
 let tileWidth;
 let game;
 let playerMoving = RIGHT;
+let backgroundMusic;
+
+function preload() {
+  soundFormats('mp3')
+  backgroundMusic = loadSound("sounds/sdc.mp3")
+}
 
 function setup() {
     createCanvas(400, 400);
@@ -24,6 +30,7 @@ function setup() {
     }
 
     game.addEnemy(createVector(floor(random(0, game.width)), floor(random(0, game.height))));
+    backgroundMusic.loop()
 }
 
 function draw() {
@@ -62,16 +69,16 @@ function keyPressed() {
             playerMoving = DOWN;
             break
 
-        case "KeyA":
+        case 65:
             playerMoving = LEFT;
             break
-        case "KeyD":
+        case 68:
             playerMoving = RIGHT;
             break
-        case "KeyW":
+        case 87:
             playerMoving = UP;
             break
-        case "KeyS":
+        case 83:
             playerMoving = DOWN;
             break
     }
