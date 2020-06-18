@@ -1,6 +1,4 @@
-let enemyInfos = [
-    [null, () => null, () => null]
-]
+let enemyInfos;
 
 let D_UP = "D_UP"
 let D_DOWN = "D_DOWN"
@@ -48,7 +46,7 @@ class Game {
         this.tail = [createVector(floor(this.width / 2), floor(this.height / 2))]
         this.fruitPos = null
         this.respawnFruit()
-        this.enemies = [] // list of vectors
+        this.enemies = []
         this.spawnEnemy()
     }
 
@@ -121,14 +119,14 @@ class Game {
         if (this.tail.length > 1) {
             this.tail.pop();
         }
-        if (this.tail.length === 1) {
+        else if (this.tail.length === 1) {
             this.dead = true;
         }
     }
 
     updateEnemies() {
         let player = this.getHead()
-        if (player === undefined) {
+        if (this.dead) {
             return;
         }
         for (let enemy of this.enemies) {
