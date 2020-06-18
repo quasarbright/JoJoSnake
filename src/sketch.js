@@ -8,7 +8,7 @@ let playerMoving = RIGHT;
 
 function setup() {
     createCanvas(400, 400);
-    frameRate(30);
+    frameRate(10);
     game = new Game();
     tileWidth = width / game.width;
     tileHeight = height / game.height;

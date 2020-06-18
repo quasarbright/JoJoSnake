@@ -3,6 +3,8 @@ let DOWN = "DOWN"
 let LEFT = "LEFT"
 let RIGHT = "RIGHT"
 
+DIRECTIONS = new Map([["UP", UP], ["DOWN", DOWN], ["LEFT", LEFT], ["RIGHT", RIGHT]]);
+
 function vectorOfDirection(direction) {
     switch(direction) {
         case UP:
@@ -68,7 +70,7 @@ class Game {
             direction = vectorOfDirection(direction)
             let newPos = p5.Vector.add(this.getHead(), direction)
             this.tail.unshift(newPos)
-            if(this.head() == this.fruitPos) {
+            if(this.getHead() === this.fruitPos) {
                 this.respawnFruit()
             } else {
                 this.tail.pop()
@@ -96,11 +98,7 @@ class Game {
         let head = this.getHead()
         if(this.isInTail(head)) {
             return true
-        } else if(!this.isInBounds(head)) {
-            return true
-        } else {
-            return false
-        }
+        } else return !this.isInBounds(head);
     }
 
     updateDead() {
@@ -114,13 +112,17 @@ class Game {
     updateEnemies() {
         let player = this.getHead()
         for (let enemy of this.enemyPositions) {
-            let direction = p5.Vector.sub(enemy, player)
-            if (abs(direction.x) > 0) {
-                enemy.x += (direction.x / direction.x)
+            let direction = p5.Vector.sub(player, enemy);
+            let max_value = Number.NEGATIVE_INFINITY;
+            let max_direction;
+            for (let value of DIRECTIONS.values()) {
+                let dirVector = vectorOfDirection(value);
+                if (dirVector.dot(direction) > max_value) {
+                    max_value = dirVector.dot(direction);
+                    max_direction = dirVector;
+                }
             }
-            else if (abs(direction.y) > 0) {
-                enemy.y += (direction.y / direction.y)
-            }
+            enemy.add(max_direction);
         }
     }
 
