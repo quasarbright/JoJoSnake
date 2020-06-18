@@ -67,7 +67,7 @@ class Game {
             direction = vectorOfDirection(direction)
             let newPos = p5.Vector.add(this.getHead(), direction)
             this.tail.unshift(newPos)
-            if(this.head() == this.fruitPos) {
+            if(this.getHead() == this.fruitPos) {
                 this.respawnFruit()
             } else {
                 this.tail.pop()
@@ -87,7 +87,7 @@ class Game {
     }
 
     generatePositionNotInTail() {
-        return this.allPositions.filter((pos) => !this.isInTail(pos) && !pos.equals(this.head()))
+        return this.allPositions.filter((pos) => !this.isInTail(pos) && !pos.equals(this.getHead()))
     }
 
 
