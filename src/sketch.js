@@ -6,10 +6,13 @@ let tileWidth;
 let game;
 let playerMoving = RIGHT;
 let backgroundMusic;
+let toiletImg;
+let toiletSprite;
 
 function preload() {
-  soundFormats('mp3')
-  backgroundMusic = loadSound("sounds/sdc.mp3")
+    soundFormats('mp3')
+    backgroundMusic = loadSound("sounds/sdc.mp3")
+    toiletImg = loadImage('images/toilet.png');
 }
 
 let playerMoveCount = 0;
@@ -33,6 +36,9 @@ function setup() {
     }
 
     game.addEnemy(createVector(floor(random(0, game.width)), floor(random(0, game.height))));
+
+    toiletSprite = createSprite(game.fruitPos.x * tileWidth, game.fruitPos.y * tileHeight, tileWidth, tileHeight);
+    toiletSprite.addImage(toiletImg);
     backgroundMusic.loop()
 }
 
