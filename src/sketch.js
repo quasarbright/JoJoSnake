@@ -16,6 +16,7 @@ let playerMoveCount = 0;
 let enemyMoveCount = 0;
 
 function setup() {
+    getAudioContext().suspend()
     createCanvas(400, 400);
     frameRate(60);
     game = new Game();
@@ -32,7 +33,6 @@ function setup() {
         rect(enemyPos.x * tileWidth, enemyPos.y * tileHeight, tileWidth, tileHeight);
     }
 
-    game.addEnemy(createVector(floor(random(0, game.width)), floor(random(0, game.height))));
     backgroundMusic.loop()
 }
 
@@ -71,6 +71,7 @@ function draw() {
 }
 
 function keyPressed() {
+    userStartAudio()
     switch (keyCode) {
         case LEFT_ARROW:
             playerMoving = LEFT;
@@ -98,4 +99,8 @@ function keyPressed() {
             playerMoving = DOWN;
             break
     }
+}
+
+function mousePressed() {
+    userStartAudio()
 }

@@ -41,6 +41,7 @@ class Game {
         this.fruitPos = null
         this.respawnFruit()
         this.enemyPositions = [] // list of vectors
+        this.spawnEnemy()
     }
 
     getEnemyPositions() {
@@ -109,10 +110,10 @@ class Game {
     }
 
     takeHit() {
-        if (this.tail.length > 0) {
+        if (this.tail.length > 1) {
             this.tail.pop();
         }
-        if (this.tail.length === 0) {
+        if (this.tail.length === 1) {
             this.dead = true;
         }
     }
@@ -133,18 +134,25 @@ class Game {
                     max_direction = dirVector;
                 }
             }
-            console.log("moving enemy in direction");
-            console.log(max_direction);
+            // console.log("moving enemy in direction");
+            // console.log(max_direction);
 
             enemy.add(max_direction);
         }
 
         // check if enemies are at player
-        for (let enemy of this.enemyPositions) {
+        for (let i = this.enemyPositions.length - 1; i >= 0; i--) {//let enemy of this.enemyPositions) {
+            let enemy = this.enemyPositions[i]
             if (enemy.equals(player)) {
                 this.takeHit();
+                this.enemyPositions.splice(i,1)
+                this.spawnEnemy()
             }
         }
+    }
+
+    spawnEnemy() {
+        this.addEnemy(this.generatePositionNotInTail())
     }
 
 
