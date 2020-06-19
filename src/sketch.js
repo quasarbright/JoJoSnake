@@ -42,15 +42,16 @@ function setup() {
     createCanvas(800, 800);
     frameRate(60);
     enemyInfos = [
-        [alessiImg, () => null, () => null]
-            [anubisImg, () => null, () => null],
-        [death_13Img, () => null, () => null],
-        [devoImg, () => null, () => null],
-        [dioImg, () => null, () => null],
-        [enyaImg, () => null, () => null],
-        [holImg, () => null, () => null],
-        [geilImg, () => null, () => null],
-        [creamImg, () => null, () => null],
+        // img, onSpawn, onDeath, health
+        {img: alessiImg, onSpawn: () => null, onDeath: () => null, health: 5},
+        {img: anubisImg, onSpawn: () => null, onDeath: () => null, health: 6},
+        {img: death_13Img, onSpawn: () => null, onDeath: () => null, health: 8},
+        {img: devoImg, onSpawn: () => null, onDeath: () => null, health: 8},
+        {img: dioImg, onSpawn: () => null, onDeath: () => null, health: 15},
+        {img: enyaImg, onSpawn: () => null, onDeath: () => null, health: 9},
+        {img: holImg, onSpawn: () => null, onDeath: () => null, health: 5},
+        {img: geilImg, onSpawn: () => null, onDeath: () => null, health: 10},
+        {img: creamImg, onSpawn: () => null, onDeath: () => null, health: 11},
     ]
     game = new Game();
     tileWidth = width / game.width;
@@ -145,6 +146,12 @@ function keyPressed() {
             break
         case 75: // k - keyframe mode
             keyFrameMode = !keyFrameMode;
+            if (keyFrameMode) {
+                backgroundMusic.pause();
+            } else {
+                backgroundMusic.play();
+            }
+
             break
         case 82: // r - restart
             restart = true;
