@@ -51,7 +51,7 @@ function setup() {
         {img: enyaImg, onSpawn: () => null, onDeath: () => null, health: 9},
         {img: holImg, onSpawn: () => null, onDeath: () => null, health: 5},
         {img: geilImg, onSpawn: () => null, onDeath: () => null, health: 10},
-        {img: creamImg, onSpawn: () => null, onDeath: () => null, health: 11},
+        {img: creamImg, onSpawn: () => null, onDeath: () => null, health: 11}
     ]
     game = new Game();
     tileWidth = width / game.width;
