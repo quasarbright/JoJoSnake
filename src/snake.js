@@ -35,6 +35,7 @@ class Game {
     constructor() {
         // first ele is head, rest is tail
         this.dead = false
+        this.deathAcknowledged = false
         this.width = 15
         this.height = 15
         this.allPositions = []
@@ -48,6 +49,8 @@ class Game {
         this.respawnFruit()
         this.enemies = []
         this.spawnEnemy()
+        this.fruitEatCount = 0
+        this.enemySpawnPeriod = 3
     }
 
     getEnemyPositions() {
@@ -91,6 +94,21 @@ class Game {
         return pos.x >= 0 && pos.x < this.width && pos.y >= 0 && pos.y < this.height
     }
 
+    onFruitEat() {
+        this.respawnFruit()
+        this.fruitEatCount++
+        if (this.fruitEatCount % this.enemySpawnPeriod == 0) {
+            this.spawnEnemy()
+        }
+    }
+
+    onDeath() {
+        if(!this.deathAcknowledged) {
+            backgroundMusic.pause()
+            this.deathAcknowledged = true
+        }
+    }
+
 
     respawnFruit() {
         this.fruitPos = this.generatePositionNotInTail();
@@ -109,6 +127,9 @@ class Game {
 
     updateDead() {
         this.dead = this.dead || this.shouldBeDead()
+        if(this.dead) {
+            this.onDeath()
+        }
     }
 
     addEnemy(enemy) {
@@ -150,7 +171,6 @@ class Game {
                 this.takeHit();
                 this.enemies.splice(i,1)
                 enemy.onDeath()
-                this.spawnEnemy()
             }
         }
     }

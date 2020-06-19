@@ -42,8 +42,8 @@ function setup() {
     createCanvas(800, 800);
     frameRate(60);
     enemyInfos = [
-        [alessiImg, () => null, () => null]
-            [anubisImg, () => null, () => null],
+        [alessiImg, () => null, () => null],
+        [anubisImg, () => null, () => null],
         [death_13Img, () => null, () => null],
         [devoImg, () => null, () => null],
         [dioImg, () => null, () => null],
