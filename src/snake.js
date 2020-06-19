@@ -176,9 +176,11 @@ class Game {
     }
 
     spawnEnemy() {
-        let [sprite, onSpawn, onDeath, health] = Object.values(choose(enemyInfos))
+        let info = choose(enemyInfos)
+        console.log(info)
+        console.log(enemyInfos)
         let position = this.generatePositionNotInTail()
-        let enemy = new Enemy(position, sprite, onSpawn, onDeath)
+        let enemy = new Enemy(position, info.img, info.onSpawn, info.onDeath, info.health)
         this.addEnemy(enemy)
         enemy.onSpawn()
     }
