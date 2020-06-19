@@ -176,7 +176,7 @@ class Game {
     }
 
     spawnEnemy() {
-        let [sprite, onSpawn, onDeath] = Object.values(choose(enemyInfos))
+        let [sprite, onSpawn, onDeath, health] = Object.values(choose(enemyInfos))
         let position = this.generatePositionNotInTail()
         let enemy = new Enemy(position, sprite, onSpawn, onDeath)
         this.addEnemy(enemy)
@@ -185,10 +185,11 @@ class Game {
 }
 
 class Enemy {
-    constructor(position, sprite, onSpawn, onDeath) {
+    constructor(position, sprite, onSpawn, onDeath, health) {
         this.position = position
         this.sprite = sprite
         this.onSpawn = onSpawn
         this.onDeath = onDeath
+        this.health = health
     }
 }
