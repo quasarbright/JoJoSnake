@@ -45,7 +45,11 @@ function setup() {
         {img: anubisImg, onSpawn: () => null, onDeath: () => null, health: 6},
         {img: death_13Img, onSpawn: () => null, onDeath: () => null, health: 8},
         {img: devoImg, onSpawn: () => null, onDeath: () => null, health: 8},
-        {img: dioImg, onSpawn: () => null, onDeath: () => null, health: 15},
+        {
+            img: dioImg, onSpawn: () => null, onDeath: () => null, health: 15, power: (game) => {
+
+            }
+        },
         {img: enyaImg, onSpawn: () => null, onDeath: () => null, health: 9},
         {img: holImg, onSpawn: () => null, onDeath: () => null, health: 5},
         {img: geilImg, onSpawn: () => null, onDeath: () => null, health: 10},

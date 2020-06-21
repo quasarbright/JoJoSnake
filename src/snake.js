@@ -221,16 +221,8 @@ class Game extends GameStage {
         }
     }
 
-    getEnemyPositions() {
-        return this.enemies.map(e => e.position)
-    }
-
     getHead() {
         return this.tail[0]
-    }
-
-    randomVector() {
-        return createVector(floor(random(0, this.width)), floor(random(0, this.height)))
     }
 
     isInTail(pos) {
@@ -277,7 +269,6 @@ class Game extends GameStage {
         }
     }
 
-
     respawnFruit() {
         this.fruitPos = this.generatePositionNotInTail();
     }
@@ -286,7 +277,6 @@ class Game extends GameStage {
         let goodPositions = this.allPositions.filter((pos) => !this.isInTail(pos) && !pos.equals(this.getHead()))
         return choose(goodPositions)
     }
-
 
     shouldBeDead() {
         let head = this.getHead()
@@ -352,11 +342,16 @@ class Game extends GameStage {
 }
 
 class Enemy {
-    constructor(position, sprite, onSpawn, onDeath, health) {
+    constructor(position, sprite, onSpawn, onDeath, health, power) {
         this.position = position
         this.sprite = sprite
         this.onSpawn = onSpawn
         this.onDeath = onDeath
         this.health = health
+        if (this.power !== undefined) {
+            this.power = power;
+        } else {
+            this.power = (game) => {};
+        }
     }
 }
