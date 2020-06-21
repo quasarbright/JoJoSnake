@@ -30,14 +30,78 @@ function choose(list) {
     return list[Math.floor(Math.random() * list.length)]
 }
 
-class Game {
+class GameStage {
+    nextFrame() {
+    };
+
+    draw() {
+    };
+
+    nextStage() {
+    };
+
+    processKey() {
+    };
+
+    processMouse() {
+    }
+}
+
+class Home extends GameStage {
+
+    playPressed;
+
+    nextStage() {
+        if (this.playPressed) {
+            return new Game();
+        } else {
+            return this;
+        }
+    }
+
+    draw() {
+        fill(0, 255, 0);
+        triangle(width / 2, width / 2, width / 2 + 15, width / 2 + 15, width / 2 + 15, width / 2);
+    }
+
+    processMouse() {
+        this.playPressed = true;
+        // userStartAudio();
+        // backgroundMusic.loop();
+    }
+}
+
+class Game extends GameStage {
+
+    _nextFrame = function* (game) {
+        while (true) {
+            if (playerMoveCount % 10 === 0) {
+                lastMove = playerMoving;
+                game.movePlayer(playerMoving);
+                enemyMoveCount += 1;
+                enemyMoveCount %= 3;
+            }
+            playerMoveCount += 1;
+            playerMoveCount %= 10;
+
+            if (enemyMoveCount % 3 === 0) {
+                game.updateEnemies();
+                enemyMoveCount += 1;
+            }
+            yield;
+        }
+    };
 
     constructor() {
+        super();
         // first ele is head, rest is tail
+
         this.dead = false
         this.deathAcknowledged = false
         this.width = 15
         this.height = 15
+        tileWidth = width / this.width;
+        tileHeight = height / this.height;
         this.allPositions = []
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.height; y++) {
@@ -51,7 +115,114 @@ class Game {
         this.spawnEnemy()
         this.fruitEatCount = 0
         this.enemySpawnPeriod = 3
+        this._nextFrame = this._nextFrame(this);
     }
+
+    nextFrame() {
+        if (restart) {
+            curStage = new Game();
+            backgroundMusic.stop();
+            backgroundMusic.play(0);
+            restart = false;
+        }
+
+        if (!keyFrameMode) {
+            this._nextFrame.next();
+        } else if (keyFrameMode) {
+            if (nextFrameRequested) {
+                this._nextFrame.next();
+                nextFrameRequested = false;
+            }
+        }
+
+    }
+
+    draw() {
+        fill(255, 255, 255);
+        image(toiletImg, this.fruitPos.x * tileWidth, this.fruitPos.y * tileHeight, tileWidth, tileHeight);
+
+        let tail = this.tail;
+        for (let piece of tail) {
+            fill(255, 0, 0);
+            rect(piece.x * tileWidth, piece.y * tileHeight, tileWidth, tileHeight);
+        }
+
+        for (let enemy of this.enemies) {
+            image(enemy.sprite, enemy.position.x * tileWidth, enemy.position.y * tileHeight, tileWidth, tileHeight);
+        }
+    }
+
+    nextStage() {
+        return this;
+    }
+
+    processKey() {
+        let requestedChange;
+        switch (keyCode) {
+            case LEFT_ARROW:
+                requestedChange = D_LEFT;
+                break
+            case RIGHT_ARROW:
+                if (keyFrameMode) {
+                    nextFrameRequested = true;
+                }
+                requestedChange = D_RIGHT;
+                break
+            case UP_ARROW:
+                requestedChange = D_UP;
+                break
+            case DOWN_ARROW:
+                requestedChange = D_DOWN;
+                break
+            case 65:
+                requestedChange = D_LEFT;
+                break
+            case 68:
+                requestedChange = D_RIGHT;
+                break
+            case 87:
+                requestedChange = D_UP;
+                break
+            case 83:
+                requestedChange = D_DOWN;
+                break
+            case 75: // k - keyframe mode
+                keyFrameMode = !keyFrameMode;
+                if (keyFrameMode) {
+                    backgroundMusic.pause();
+                } else {
+                    backgroundMusic.play();
+                }
+
+                break
+            case 82: // r - restart
+                restart = true;
+                break
+        }
+        if (requestedChange !== undefined) {
+            if (lastMove === D_LEFT) {
+                if (requestedChange !== D_RIGHT) {
+                    playerMoving = requestedChange
+                }
+            }
+            if (lastMove === D_RIGHT) {
+                if (requestedChange !== D_LEFT) {
+                    playerMoving = requestedChange
+                }
+            }
+            if (lastMove === D_UP) {
+                if (requestedChange !== D_DOWN) {
+                    playerMoving = requestedChange
+                }
+            }
+            if (lastMove === D_DOWN) {
+                if (requestedChange !== D_UP) {
+                    playerMoving = requestedChange
+                }
+            }
+        }
+    }
+
 
     getEnemyPositions() {
         return this.enemies.map(e => e.position)
@@ -82,7 +253,7 @@ class Game {
             let newPos = p5.Vector.add(this.getHead(), direction)
             this.tail.unshift(newPos)
             if (this.getHead().equals(this.fruitPos)) {
-                this.respawnFruit()
+                this.onFruitEat();
             } else {
                 this.tail.pop()
             }
@@ -97,13 +268,13 @@ class Game {
     onFruitEat() {
         this.respawnFruit()
         this.fruitEatCount++
-        if (this.fruitEatCount % this.enemySpawnPeriod == 0) {
+        if (this.fruitEatCount % this.enemySpawnPeriod === 0) {
             this.spawnEnemy()
         }
     }
 
     onDeath() {
-        if(!this.deathAcknowledged) {
+        if (!this.deathAcknowledged) {
             backgroundMusic.pause()
             this.deathAcknowledged = true
         }
@@ -127,7 +298,7 @@ class Game {
 
     updateDead() {
         this.dead = this.dead || this.shouldBeDead()
-        if(this.dead) {
+        if (this.dead) {
             this.onDeath()
         }
     }
@@ -139,8 +310,7 @@ class Game {
     takeHit() {
         if (this.tail.length > 1) {
             this.tail.pop();
-        }
-        else if (this.tail.length === 1) {
+        } else if (this.tail.length === 1) {
             this.dead = true;
         }
     }
@@ -169,7 +339,7 @@ class Game {
             let enemy = this.enemies[i]
             if (enemy.position.equals(player)) {
                 this.takeHit();
-                this.enemies.splice(i,1)
+                this.enemies.splice(i, 1)
                 enemy.onDeath()
             }
         }

@@ -1,6 +1,5 @@
 let tileHeight;
 let tileWidth;
-let game;
 let playerMoving = D_RIGHT;
 let playerMoveCount = 0;
 let enemyMoveCount = 0;
@@ -10,7 +9,7 @@ let backgroundMusic;
 let toiletImg;
 let keyFrameMode = false;
 let nextFrameRequested = false;
-let restart = true;
+let restart = false;
 let alessiImg;
 let anubisImg;
 let death_13Img;
@@ -36,9 +35,10 @@ function preload() {
     creamImg = loadImage('images/vanilla_ice_cream.png')
 }
 
+let curStage;
 
 function setup() {
-    getAudioContext().suspend()
+    curStage = new Home();
     createCanvas(800, 800);
     frameRate(60);
     enemyInfos = [
@@ -53,134 +53,22 @@ function setup() {
         {img: geilImg, onSpawn: () => null, onDeath: () => null, health: 10},
         {img: creamImg, onSpawn: () => null, onDeath: () => null, health: 11}
     ]
-    game = new Game();
-    tileWidth = width / game.width;
-    tileHeight = height / game.height;
-    backgroundMusic.loop()
 }
-
-function* next_frame() {
-    while (true) {
-        if (playerMoveCount % 10 === 0) {
-            lastMove = playerMoving;
-            game.movePlayer(playerMoving);
-            enemyMoveCount += 1;
-            enemyMoveCount %= 3;
-        }
-        playerMoveCount += 1;
-        playerMoveCount %= 10;
-
-        if (enemyMoveCount % 3 === 0) {
-            game.updateEnemies();
-            enemyMoveCount += 1;
-        }
-        yield true;
-    }
-}
-
-const frame_generator = next_frame();
 
 function draw() {
 
     background(51);
 
-    if (restart) {
-        game = new Game();
-        restart = false;
-    }
-
-    if (!keyFrameMode) {
-        frame_generator.next();
-    } else if (keyFrameMode) {
-        if (nextFrameRequested) {
-            frame_generator.next();
-            nextFrameRequested = false;
-        }
-    }
-
-    fill(255, 255, 255);
-    image(toiletImg, game.fruitPos.x * tileWidth, game.fruitPos.y * tileHeight, tileWidth, tileHeight);
-
-    let tail = game.tail;
-    for (let piece of tail) {
-        fill(255, 0, 0);
-        rect(piece.x * tileWidth, piece.y * tileHeight, tileWidth, tileHeight);
-    }
-
-    for (let enemy of game.enemies) {
-        image(enemy.sprite, enemy.position.x * tileWidth, enemy.position.y * tileHeight, tileWidth, tileHeight);
-    }
+    curStage = curStage.nextStage();
+    curStage.nextFrame();
+    curStage.draw();
 
 }
 
 function keyPressed() {
-    userStartAudio()
-    let requestedChange;
-    switch (keyCode) {
-        case LEFT_ARROW:
-            requestedChange = D_LEFT;
-            break
-        case RIGHT_ARROW:
-            if (keyFrameMode) {
-                nextFrameRequested = true;
-            }
-            requestedChange = D_RIGHT;
-            break
-        case UP_ARROW:
-            requestedChange = D_UP;
-            break
-        case DOWN_ARROW:
-            requestedChange = D_DOWN;
-            break
-        case 65:
-            requestedChange = D_LEFT;
-            break
-        case 68:
-            requestedChange = D_RIGHT;
-            break
-        case 87:
-            requestedChange = D_UP;
-            break
-        case 83:
-            requestedChange = D_DOWN;
-            break
-        case 75: // k - keyframe mode
-            keyFrameMode = !keyFrameMode;
-            if (keyFrameMode) {
-                backgroundMusic.pause();
-            } else {
-                backgroundMusic.play();
-            }
-
-            break
-        case 82: // r - restart
-            restart = true;
-            break
-    }
-    if (requestedChange !== undefined) {
-        if (lastMove === D_LEFT) {
-            if (requestedChange !== D_RIGHT) {
-                playerMoving = requestedChange
-            }
-        }
-        if (lastMove === D_RIGHT) {
-            if (requestedChange !== D_LEFT) {
-                playerMoving = requestedChange
-            }
-        }
-        if (lastMove === D_UP) {
-            if (requestedChange !== D_DOWN) {
-                playerMoving = requestedChange
-            }
-        }
-        if (lastMove === D_DOWN) {
-            if (requestedChange !== D_UP) {
-                playerMoving = requestedChange
-            }
-        }
-    }
+    curStage.processKey();
 }
 
 function mousePressed() {
-    userStartAudio()
+    curStage.processMouse();
 }
