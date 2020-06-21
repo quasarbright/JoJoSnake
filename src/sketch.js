@@ -17,6 +17,8 @@ let enyaImg;
 let holImg;
 let geilImg;
 let creamImg;
+let judgementImg
+let iggyImg
 
 function preload() {
     soundFormats('mp3')
@@ -31,6 +33,8 @@ function preload() {
     holImg = loadImage('images/hol_horse.png')
     geilImg = loadImage('images/j_geil_hanged man.jpg')
     creamImg = loadImage('images/vanilla_ice_cream.png')
+    judgementImg = loadImage('images/hail2u.png')
+    iggyImg = loadImage('images/iggy.png')
 }
 
 let curStage;
@@ -53,7 +57,9 @@ function setup() {
         {img: enyaImg, onSpawn: () => null, onDeath: () => null, health: 9},
         {img: holImg, onSpawn: () => null, onDeath: () => null, health: 5},
         {img: geilImg, onSpawn: () => null, onDeath: () => null, health: 10},
-        {img: creamImg, onSpawn: () => null, onDeath: () => null, health: 11}
+        {img: creamImg, onSpawn: () => null, onDeath: () => null, health: 11},
+        {img: judgementImg, onSpawn: () => null, onDeath: () => null, health: 10},
+        {img: iggyImg, onSpawn: () => null, onDeath: () => null, health: 10}
     ]
 }
 

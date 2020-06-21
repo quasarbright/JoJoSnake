@@ -340,7 +340,7 @@ class Game extends GameStage {
     spawnEnemy() {
         let info = choose(enemyInfos)
         let position = this.generatePositionNotInTail()
-        let enemy = new Enemy(position, info.img, info.onSpawn, info.onDeath, info.health)
+        let enemy = new Enemy(position, info.img, info.onSpawn, info.onDeath, info.health, info.power)
         this.addEnemy(enemy)
         enemy.onSpawn()
     }
