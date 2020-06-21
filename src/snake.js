@@ -314,6 +314,15 @@ class Game extends GameStage {
         if (this.dead) {
             return;
         }
+        // check if enemies are at player
+        for (let i = this.enemies.length - 1; i >= 0; i--) {
+            let enemy = this.enemies[i]
+            if (enemy.position.equals(this.getHead())) {
+                this.takeHit();
+                this.enemies.splice(i, 1)
+                enemy.onDeath()
+            }
+        }
         if (enemyMoveCount % 3 === 0) {
             for (let enemy of this.enemies) {
                 if (enemy.position.equals(this.fruitPos)) {
@@ -325,17 +334,6 @@ class Game extends GameStage {
 
             }
             enemyMoveCount += 1;
-        }
-
-
-        // check if enemies are at player
-        for (let i = this.enemies.length - 1; i >= 0; i--) {
-            let enemy = this.enemies[i]
-            if (enemy.position.equals(this.getHead())) {
-                this.takeHit();
-                this.enemies.splice(i, 1)
-                enemy.onDeath()
-            }
         }
     }
 
