@@ -5,6 +5,7 @@ let enemyMoveCount = 0;
 let backgroundMusic;
 
 let toiletImg;
+let backgroundImg;
 let keyFrameMode = false;
 let nextFrameRequested = false;
 let restart = false;
@@ -24,6 +25,7 @@ function preload() {
     soundFormats('mp3')
     backgroundMusic = loadSound("sounds/sdc.mp3")
     toiletImg = loadImage('images/toilet.png');
+    backgroundImg = loadImage('images/lean.jpg')
     alessiImg = loadImage('images/alessi.png')
     anubisImg = loadImage('images/anubis.png')
     death_13Img = loadImage('images/death_13.png')
@@ -65,7 +67,8 @@ function setup() {
 
 function draw() {
 
-    background(51);
+    image(backgroundImg, 0,0,width, height)
+    background(0, 200);
 
     curStage = curStage.nextStage();
     curStage.nextFrame();
