@@ -95,10 +95,8 @@ class Game extends GameStage {
             playerMoveCount += 1;
             playerMoveCount %= 10;
 
-            if (enemyMoveCount % 3 === 0) {
-                game.updateEnemies();
-                enemyMoveCount += 1;
-            }
+            game.updateEnemies();
+
             yield;
         }
     };
@@ -316,13 +314,19 @@ class Game extends GameStage {
         if (this.dead) {
             return;
         }
-        for (let enemy of this.enemies) {
-            enemy.move(this);
-            if (enemy.position.equals(this.fruitPos)) {
-                enemy.hasFruit = true;
-                this.fruitPos = enemy.position
+        if (enemyMoveCount % 3 === 0) {
+            for (let enemy of this.enemies) {
+                if (enemy.position.equals(this.fruitPos)) {
+                    enemy.hasFruit = true;
+                    this.fruitPos = enemy.position
+                    enemy.toiletSeeker = true;
+                }
+                enemy.move(this);
+
             }
+            enemyMoveCount += 1;
         }
+
 
         // check if enemies are at player
         for (let i = this.enemies.length - 1; i >= 0; i--) {
@@ -347,7 +351,7 @@ class Game extends GameStage {
 class Enemy {
     toiletSeeker;
     hasFruit = false;
-    static toilerSeekerProbability = 0.0;
+    static toilerSeekerProbability = 0.2;
 
     constructor(position, sprite, onSpawn, onDeath, health, power) {
         this.position = position
