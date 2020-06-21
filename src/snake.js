@@ -7,6 +7,7 @@ let D_RIGHT = "D_RIGHT"
 
 DIRECTIONS = new Map([["D_UP", D_UP], ["D_DOWN", D_DOWN], ["D_LEFT", D_LEFT], ["D_RIGHT", D_RIGHT]]);
 
+
 function vectorOfDirection(direction) {
     switch (direction) {
         case D_UP:
@@ -73,11 +74,21 @@ class Home extends GameStage {
 
 class Game extends GameStage {
 
+    movementQueue = []; // the queue of moves to make when it is the players turn
+    lastMove = D_RIGHT; // the last move the player actually made
+
+
     _nextFrame = function* (game) {
         while (true) {
             if (playerMoveCount % 10 === 0) {
-                lastMove = playerMoving;
-                game.movePlayer(playerMoving);
+                if (game.movementQueue.length === 0) {
+                    game.movePlayer(game.lastMove);
+                }
+                for (let move of game.movementQueue) {
+                    game.lastMove = move;
+                    game.movePlayer(move);
+                }
+                game.movementQueue = [];
                 enemyMoveCount += 1;
                 enemyMoveCount %= 3;
             }
@@ -201,29 +212,15 @@ class Game extends GameStage {
                 break
         }
         if (requestedChange !== undefined) {
-            if (lastMove === D_LEFT) {
-                if (requestedChange !== D_RIGHT) {
-                    playerMoving = requestedChange
-                }
-            }
-            if (lastMove === D_RIGHT) {
-                if (requestedChange !== D_LEFT) {
-                    playerMoving = requestedChange
-                }
-            }
-            if (lastMove === D_UP) {
-                if (requestedChange !== D_DOWN) {
-                    playerMoving = requestedChange
-                }
-            }
-            if (lastMove === D_DOWN) {
-                if (requestedChange !== D_UP) {
-                    playerMoving = requestedChange
-                }
+            if ((this.lastMove === D_LEFT && requestedChange !== D_RIGHT) ||
+                (this.lastMove === D_RIGHT && requestedChange !== D_LEFT) ||
+                (this.lastMove === D_UP && requestedChange !== D_DOWN) ||
+                (this.lastMove === D_DOWN && requestedChange !== D_UP)) {
+                this.lastMove = requestedChange
+                this.movementQueue.push(this.lastMove);
             }
         }
     }
-
 
     getEnemyPositions() {
         return this.enemies.map(e => e.position)
@@ -363,8 +360,6 @@ class Game extends GameStage {
 
     spawnEnemy() {
         let info = choose(enemyInfos)
-        console.log(info)
-        console.log(enemyInfos)
         let position = this.generatePositionNotInTail()
         let enemy = new Enemy(position, info.img, info.onSpawn, info.onDeath, info.health)
         this.addEnemy(enemy)
