@@ -363,7 +363,6 @@ class Enemy {
             this.power = (game) => {
             };
         }
-
         this.toiletSeeker = Math.random() <= Enemy.toilerSeekerProbability;
     }
 
