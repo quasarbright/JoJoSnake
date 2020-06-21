@@ -150,13 +150,13 @@ class Game extends GameStage {
 
     draw() {
         fill(255, 255, 255);
-        
+
         let tail = this.tail;
         for (let piece of tail) {
             fill(255, 0, 0);
             rect(piece.x * tileWidth, piece.y * tileHeight, tileWidth, tileHeight);
         }
-        
+
         for (let enemy of this.enemies) {
             image(enemy.sprite, enemy.position.x * tileWidth, enemy.position.y * tileHeight, tileWidth, tileHeight);
         }
@@ -311,28 +311,15 @@ class Game extends GameStage {
         }
         return false
     }
-    
+
     updateEnemies() {
-        let player = this.getHead()
         if (this.dead) {
             return;
         }
         for (let enemy of this.enemies) {
-            let direction = p5.Vector.sub(player, enemy.position);
-            let max_value = Number.NEGATIVE_INFINITY;
-            let max_direction;
-            for (let value of DIRECTIONS.values()) {
-                let dirVector = vectorOfDirection(value);
-                let newPos = p5.Vector.add(enemy.position, dirVector)
-                if (dirVector.dot(direction) > max_value && !this.positionHasEnemy(newPos)) {
-                    max_value = dirVector.dot(direction);
-                    max_direction = dirVector;
-                }
-            }
-            if(max_direction !== undefined) {
-                enemy.position.add(max_direction);
-            }
+            enemy.move(this);
             if (enemy.position.equals(this.fruitPos)) {
+                enemy.hasFruit = true;
                 this.fruitPos = enemy.position
             }
         }
@@ -340,7 +327,7 @@ class Game extends GameStage {
         // check if enemies are at player
         for (let i = this.enemies.length - 1; i >= 0; i--) {
             let enemy = this.enemies[i]
-            if (enemy.position.equals(player)) {
+            if (enemy.position.equals(this.getHead())) {
                 this.takeHit();
                 this.enemies.splice(i, 1)
                 enemy.onDeath()
@@ -358,6 +345,10 @@ class Game extends GameStage {
 }
 
 class Enemy {
+    toiletSeeker;
+    hasFruit = false;
+    static toilerSeekerProbability = 0.0;
+
     constructor(position, sprite, onSpawn, onDeath, health, power) {
         this.position = position
         this.sprite = sprite
@@ -367,7 +358,45 @@ class Enemy {
         if (this.power !== undefined) {
             this.power = power;
         } else {
-            this.power = (game) => {};
+            this.power = (game) => {
+            };
+        }
+
+        this.toiletSeeker = Math.random() <= Enemy.toilerSeekerProbability;
+    }
+
+    move(game) {
+        let towardsPosition = this.toiletSeeker ? game.fruitPos : game.getHead();
+        if (this.toiletSeeker && this.hasFruit) {
+            let direction = p5.Vector.sub(game.getHead(), this.position);
+            let min_value = Number.POSITIVE_INFINITY;
+            let min_direction;
+            for (let value of DIRECTIONS.values()) {
+                let dirVector = vectorOfDirection(value);
+                let newPos = p5.Vector.add(this.position, dirVector)
+                if (dirVector.dot(direction) < min_value && !game.positionHasEnemy(newPos) && game.isInBounds(newPos)) {
+                    min_value = dirVector.dot(direction);
+                    min_direction = dirVector;
+                }
+            }
+            if (min_direction !== undefined) {
+                this.position.add(min_direction);
+            }
+        } else {
+            let direction = p5.Vector.sub(towardsPosition, this.position);
+            let max_value = Number.NEGATIVE_INFINITY;
+            let max_direction;
+            for (let value of DIRECTIONS.values()) {
+                let dirVector = vectorOfDirection(value);
+                let newPos = p5.Vector.add(this.position, dirVector)
+                if (dirVector.dot(direction) > max_value && !game.positionHasEnemy(newPos) && game.isInBounds(newPos)) {
+                    max_value = dirVector.dot(direction);
+                    max_direction = dirVector;
+                }
+            }
+            if (max_direction !== undefined) {
+                this.position.add(max_direction);
+            }
         }
     }
 }
