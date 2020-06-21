@@ -1,9 +1,7 @@
 let tileHeight;
 let tileWidth;
-let playerMoving = D_RIGHT;
 let playerMoveCount = 0;
 let enemyMoveCount = 0;
-let lastMove = playerMoving;
 let backgroundMusic;
 
 let toiletImg;
