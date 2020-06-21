@@ -67,8 +67,8 @@ class Home extends GameStage {
 
     processMouse() {
         this.playPressed = true;
-        // userStartAudio();
-        // backgroundMusic.loop();
+        userStartAudio();
+        backgroundMusic.loop();
     }
 }
 
@@ -81,12 +81,14 @@ class Game extends GameStage {
     _nextFrame = function* (game) {
         while (true) {
             if (playerMoveCount % 10 === 0) {
+                if (game.movementQueue.length === 0) {
+                    game.movePlayer(game.lastMove);
+                }
                 for (let move of game.movementQueue) {
                     game.lastMove = move;
                     game.movePlayer(move);
                 }
                 game.movementQueue = [];
-                game.movementQueue.push(game.lastMove); // keep moving in same direction
                 enemyMoveCount += 1;
                 enemyMoveCount %= 3;
             }
