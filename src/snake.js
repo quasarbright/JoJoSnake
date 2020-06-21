@@ -121,8 +121,8 @@ class Game extends GameStage {
         }
         this.tail = [createVector(floor(this.width / 2), floor(this.height / 2))]
         this.fruitPos = null
-        this.respawnFruit()
         this.enemies = []
+        this.respawnFruit()
         this.spawnEnemy()
         this.fruitEatCount = 0
         this.enemySpawnPeriod = 3
@@ -150,17 +150,18 @@ class Game extends GameStage {
 
     draw() {
         fill(255, 255, 255);
-        image(toiletImg, this.fruitPos.x * tileWidth, this.fruitPos.y * tileHeight, tileWidth, tileHeight);
-
+        
         let tail = this.tail;
         for (let piece of tail) {
             fill(255, 0, 0);
             rect(piece.x * tileWidth, piece.y * tileHeight, tileWidth, tileHeight);
         }
-
+        
         for (let enemy of this.enemies) {
             image(enemy.sprite, enemy.position.x * tileWidth, enemy.position.y * tileHeight, tileWidth, tileHeight);
         }
+
+        image(toiletImg, this.fruitPos.x * tileWidth, this.fruitPos.y * tileHeight, tileWidth, tileHeight);
     }
 
     nextStage() {
@@ -275,7 +276,7 @@ class Game extends GameStage {
 
     generatePositionNotInTail() {
         let goodPositions = this.allPositions.filter((pos) => !this.isInTail(pos) && !pos.equals(this.getHead()))
-        return choose(goodPositions)
+        return choose(goodPositions).copy()
     }
 
     shouldBeDead() {
@@ -302,6 +303,15 @@ class Game extends GameStage {
         }
     }
 
+    positionHasEnemy(p) {
+        for (let enemy of this.enemies) {
+            if (enemy.position.equals(p)) {
+                return enemy
+            }
+        }
+        return false
+    }
+    
     updateEnemies() {
         let player = this.getHead()
         if (this.dead) {
@@ -313,12 +323,18 @@ class Game extends GameStage {
             let max_direction;
             for (let value of DIRECTIONS.values()) {
                 let dirVector = vectorOfDirection(value);
-                if (dirVector.dot(direction) > max_value) {
+                let newPos = p5.Vector.add(enemy.position, dirVector)
+                if (dirVector.dot(direction) > max_value && !this.positionHasEnemy(newPos)) {
                     max_value = dirVector.dot(direction);
                     max_direction = dirVector;
                 }
             }
-            enemy.position.add(max_direction);
+            if(max_direction !== undefined) {
+                enemy.position.add(max_direction);
+            }
+            if (enemy.position.equals(this.fruitPos)) {
+                this.fruitPos = enemy.position
+            }
         }
 
         // check if enemies are at player
