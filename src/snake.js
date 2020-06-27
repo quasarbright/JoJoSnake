@@ -97,6 +97,7 @@ class Game extends GameStage {
             playerMoveCount %= PLAYERTICKRATE;
 
             game.updateEnemies();
+            game.updateAllies()
 
             yield;
         }
@@ -122,6 +123,7 @@ class Game extends GameStage {
         this.tail = [createVector(floor(this.width / 2), floor(this.height / 2))]
         this.fruitPos = null
         this.enemies = []
+        this.allies = []
         this.respawnFruit()
         this.spawnEnemy()
         this.fruitEatCount = 0
@@ -159,6 +161,10 @@ class Game extends GameStage {
 
         for (let enemy of this.enemies) {
             image(enemy.sprite, enemy.position.x * tileWidth, enemy.position.y * tileHeight, tileWidth, tileHeight);
+        }
+
+        for (let ally of this.allies) {
+            image(ally.sprite, ally.position.x * tileWidth, ally.position.y * tileHeight, tileWidth, tileHeight)
         }
 
         image(toiletImg, this.fruitPos.x * tileWidth, this.fruitPos.y * tileHeight, tileWidth, tileHeight);
@@ -205,7 +211,6 @@ class Game extends GameStage {
                 } else {
                     backgroundMusic.play();
                 }
-
                 break
             case 82: // r - restart
                 restart = true;
@@ -279,7 +284,7 @@ class Game extends GameStage {
     }
 
     silverChariot() {
-        console.log("SHIRUBA CHARIOTTO")
+        this.allies.push(new silverChariot(this.getHead().copy()))
     }
 
     generatePositionNotInTail() {
@@ -328,8 +333,19 @@ class Game extends GameStage {
         // check if enemies are at player
         for (let i = this.enemies.length - 1; i >= 0; i--) {
             let enemy = this.enemies[i]
-            if (enemy.position.equals(this.getHead())) {
+            let died = false
+            for(let ally of this.allies) {
+                if (ally.position.equals(enemy.position)) {
+                    died = true;
+                    ally.health--
+                    break
+                }
+            }
+            if (!died && enemy.position.equals(this.getHead())) {
                 this.takeHit();
+                died = true
+            }
+            if (died) {
                 this.enemies.splice(i, 1)
                 enemy.onDeath()
             }
@@ -338,6 +354,23 @@ class Game extends GameStage {
             for (let enemy of this.enemies) {
                 enemy.move(this);
                 enemy.power(this);
+            }
+        }
+    }
+
+    updateAllies() {
+        if (enemyMoveCount % CHARIOTTICKRATE === 0) {
+            for (let i = this.allies.length - 1; i >= 0; i--) {
+                let ally = this.allies[i]
+                if(ally.health <= 0) {
+                    this.allies.splice(i,1)
+                    ally.onDeath()
+                    if(ally.id === "silver chariot") {
+                        this.streak = 0
+                    }
+                } else {
+                    ally.move(this)
+                }
             }
         }
     }
@@ -427,19 +460,21 @@ class Enemy {
 
 class silverChariot extends Enemy {
     constructor(position) {
-        this.fuel = Math.floor(Math.random() * 4 + 2)
-        this.position = position
+        let nothing = () => {}
+        let health = Math.floor(Math.random() * 4 + 2)
+        super(position, "silver chariot", chariotImg, nothing, nothing, health, nothing)
     }
 
     move(game) {
         let enemyPositions = game.enemies.map(e => e.position)
         let target = argmax(enemyPositions, p => taxiDistance(this.position, p))
-        if (target !== undefined) {
-            let dirVectors = this.getDirVectors(target, true, game)
-            if (dirVectors.length > 0) {
-                let dir = dirVectors[0]
-                this.position.add(dir)
-            }
+        if (target === undefined) {
+            target = game.getHead().copy()
+        }
+        let dirVectors = this.getDirVectors(target, true, game)
+        if (dirVectors.length > 0) {
+            let dir = dirVectors[0]
+            this.position.add(dir)
         }
     }
 }
