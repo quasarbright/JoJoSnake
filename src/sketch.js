@@ -27,6 +27,7 @@ let geilImg;
 let creamImg;
 let judgementImg
 let iggyImg
+let chariotImg
 
 function preload() {
     soundFormats('mp3')
@@ -44,6 +45,7 @@ function preload() {
     creamImg = loadImage('images/vanilla_ice_cream.png')
     judgementImg = loadImage('images/hail2u.png')
     iggyImg = loadImage('images/iggy.png')
+    chariotImg = loadImage('images/silver_chariot.jpg')
 }
 
 let curStage;

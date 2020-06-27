@@ -76,14 +76,12 @@ class Game extends GameStage {
 
     movementQueue = []; // the queue of moves to make when it is the players turn
     lastMove = D_RIGHT; // the last move the player actually made
+    static SILVER_CHARIOT_STREAK_REQUIREMENT = 5
 
 
     _nextFrame = function* (game) {
         while (true) {
             if (playerMoveCount % PLAYERTICKRATE === 0) {
-                if (game.streak >= 5) {
-                    game.silverChariot()
-                }
                 if (game.movementQueue.length === 0) {
                     game.movePlayer(game.lastMove);
                 }
@@ -259,6 +257,9 @@ class Game extends GameStage {
 
     onFruitEat() {
         this.streak++
+        if (this.streak == Game.SILVER_CHARIOT_STREAK_REQUIREMENT) {
+            this.silverChariot()
+        }
         this.respawnFruit()
         this.fruitEatCount++
         if (this.fruitEatCount % this.enemySpawnPeriod === 0) {
@@ -386,7 +387,17 @@ class Enemy {
         } else {
             target = game.fruitPos
         }
-        let dirVectors = this.getDirVectors(target, seeking, game)
+
+        let goodDir = dir => {
+            let newPos = p5.Vector.add(dir, this.position)
+            return !game.positionHasEnemy(newPos) && game.isInBounds(newPos)
+        }
+        
+        let dirVectors = this.getDirVectors(target, seeking, goodDir)
+        dirVectors = dirVectors.filter(dir => {
+            let newPos = p5.Vector.add(dir, this.position)
+            return !game.positionHasEnemy(newPos) && game.isInBounds(newPos)
+        })
         if(dirVectors.length > 0) {
             let dir = dirVectors[0]
             this.position.add(dir)
@@ -399,7 +410,7 @@ class Enemy {
      * @param {pt.Vector} target 
      * @param {boolean} seeking 
      */
-    getDirVectors(target, seeking, game) {
+    getDirVectors(target, seeking) {
         let dirs = [createVector(1,0), createVector(-1,0), createVector(0,1), createVector(0,-1)]
         let key
         let disp = p5.Vector.sub(target, this.position)
@@ -409,11 +420,27 @@ class Enemy {
             key = dir => -dir.dot(disp)
         }
         dirs.sort((a,b) => key(b) - key(a)) // sort backward
-        dirs = dirs.filter(dir => {
-            let newPos = p5.Vector.add(dir, this.position)
-            return !game.positionHasEnemy(newPos) && game.isInBounds(newPos)
-        })
+        
         return dirs
+    }
+}
+
+class silverChariot extends Enemy {
+    constructor(position) {
+        this.fuel = Math.floor(Math.random() * 4 + 2)
+        this.position = position
+    }
+
+    move(game) {
+        let enemyPositions = game.enemies.map(e => e.position)
+        let target = argmax(enemyPositions, p => taxiDistance(this.position, p))
+        if (target !== undefined) {
+            let dirVectors = this.getDirVectors(target, true, game)
+            if (dirVectors.length > 0) {
+                let dir = dirVectors[0]
+                this.position.add(dir)
+            }
+        }
     }
 }
 
