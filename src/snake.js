@@ -80,11 +80,11 @@ class Game extends GameStage {
 
     _nextFrame = function* (game) {
         while (true) {
-            if (playerMoveCount % 10 === 0) {
+            if (playerMoveCount % PLAYERTICKRATE === 0) {
+                if (game.streak >= 5) {
+                    game.silverChariot()
+                }
                 if (game.movementQueue.length === 0) {
-                    if (game.streak >= 5) {
-                        game.silverChariot()
-                    }
                     game.movePlayer(game.lastMove);
                 }
                 for (let move of game.movementQueue) {
@@ -92,11 +92,11 @@ class Game extends GameStage {
                     game.movePlayer(move);
                 }
                 game.movementQueue = [];
-                enemyMoveCount += 1;
-                enemyMoveCount %= 3;
             }
+            enemyMoveCount += 1;
+            enemyMoveCount %= ENEMYTICKRATE;
             playerMoveCount += 1;
-            playerMoveCount %= 10;
+            playerMoveCount %= PLAYERTICKRATE;
 
             game.updateEnemies();
 
@@ -333,18 +333,21 @@ class Game extends GameStage {
                 enemy.onDeath()
             }
         }
-        if (enemyMoveCount % 3 === 0) {
+        if (enemyMoveCount % ENEMYTICKRATE === 0) {
             for (let enemy of this.enemies) {
                 enemy.move(this);
+<<<<<<< HEAD
+=======
+                enemy.power(this);
+>>>>>>> 54c0bdbe352c1d1d245eea57c5624aa3070e0bda
             }
-            enemyMoveCount += 1;
         }
     }
 
     spawnEnemy() {
         let info = choose(enemyInfos)
         let position = this.generatePositionNotInTail()
-        let enemy = new Enemy(position, info.img, info.onSpawn, info.onDeath, info.health, info.power)
+        let enemy = new Enemy(position, info.id, info.img, info.onSpawn, info.onDeath, info.health, info.power)
         this.addEnemy(enemy)
         enemy.onSpawn()
     }
@@ -352,18 +355,23 @@ class Game extends GameStage {
 
 class Enemy {
     static toilerSeekerProbability = 0.2;
-    constructor(position, sprite, onSpawn, onDeath, health, power) {
+    constructor(position, id, sprite, onSpawn, onDeath, health, power) {
         this.hasFruit = false;
         this.position = position
         this.sprite = sprite
         this.onSpawn = onSpawn
         this.onDeath = onDeath
         this.health = health
-        if (this.power !== undefined) {
+        if (power !== undefined) {
             this.power = power;
         } else {
             this.power = (game) => {
             };
+        }
+        if (id !== undefined) {
+            this.id = id;
+        } else {
+            this.id = "NAMELESS";
         }
         this.toiletSeeker = Math.random() <= Enemy.toilerSeekerProbability;
     }
