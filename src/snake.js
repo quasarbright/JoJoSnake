@@ -336,10 +336,7 @@ class Game extends GameStage {
         if (enemyMoveCount % ENEMYTICKRATE === 0) {
             for (let enemy of this.enemies) {
                 enemy.move(this);
-<<<<<<< HEAD
-=======
                 enemy.power(this);
->>>>>>> 54c0bdbe352c1d1d245eea57c5624aa3070e0bda
             }
         }
     }
