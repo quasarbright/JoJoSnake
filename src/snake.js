@@ -82,6 +82,9 @@ class Game extends GameStage {
         while (true) {
             if (playerMoveCount % 10 === 0) {
                 if (game.movementQueue.length === 0) {
+                    if (game.streak >= 5) {
+                        game.silverChariot()
+                    }
                     game.movePlayer(game.lastMove);
                 }
                 for (let move of game.movementQueue) {
@@ -109,6 +112,7 @@ class Game extends GameStage {
         this.deathAcknowledged = false
         this.width = 15
         this.height = 15
+        this.streak = 0
         tileWidth = width / this.width;
         tileHeight = height / this.height;
         this.allPositions = []
@@ -254,6 +258,7 @@ class Game extends GameStage {
     }
 
     onFruitEat() {
+        this.streak++
         this.respawnFruit()
         this.fruitEatCount++
         if (this.fruitEatCount % this.enemySpawnPeriod === 0) {
@@ -270,6 +275,10 @@ class Game extends GameStage {
 
     respawnFruit() {
         this.fruitPos = this.generatePositionNotInTail();
+    }
+
+    silverChariot() {
+        console.log("SHIRUBA CHARIOTTO")
     }
 
     generatePositionNotInTail() {
@@ -294,6 +303,7 @@ class Game extends GameStage {
     }
 
     takeHit() {
+        this.streak = 0
         if (this.tail.length > 1) {
             this.tail.pop();
         } else if (this.tail.length === 1) {
@@ -325,13 +335,7 @@ class Game extends GameStage {
         }
         if (enemyMoveCount % 3 === 0) {
             for (let enemy of this.enemies) {
-                if (enemy.position.equals(this.fruitPos)) {
-                    enemy.hasFruit = true;
-                    this.fruitPos = enemy.position
-                    enemy.toiletSeeker = true;
-                }
                 enemy.move(this);
-
             }
             enemyMoveCount += 1;
         }
@@ -347,11 +351,9 @@ class Game extends GameStage {
 }
 
 class Enemy {
-    toiletSeeker;
-    hasFruit = false;
     static toilerSeekerProbability = 0.2;
-
     constructor(position, sprite, onSpawn, onDeath, health, power) {
+        this.hasFruit = false;
         this.position = position
         this.sprite = sprite
         this.onSpawn = onSpawn
@@ -367,37 +369,58 @@ class Enemy {
     }
 
     move(game) {
-        let towardsPosition = this.toiletSeeker ? game.fruitPos : game.getHead();
-        if (this.toiletSeeker && this.hasFruit) {
-            let direction = p5.Vector.sub(game.getHead(), this.position);
-            let min_value = Number.POSITIVE_INFINITY;
-            let min_direction;
-            for (let value of DIRECTIONS.values()) {
-                let dirVector = vectorOfDirection(value);
-                let newPos = p5.Vector.add(this.position, dirVector)
-                if (dirVector.dot(direction) < min_value && !game.positionHasEnemy(newPos) && game.isInBounds(newPos)) {
-                    min_value = dirVector.dot(direction);
-                    min_direction = dirVector;
-                }
-            }
-            if (min_direction !== undefined) {
-                this.position.add(min_direction);
-            }
+        if (this.position.equals(game.fruitPos)) {
+            this.hasFruit = true
+            this.toiletSeeker = true
+            game.fruitPos = this.position
+        }
+        let target
+        let seeking = !this.toiletSeeker || !this.hasFruit
+        if (!this.toiletSeeker || this.hasFruit) {
+            target = game.getHead()
         } else {
-            let direction = p5.Vector.sub(towardsPosition, this.position);
-            let max_value = Number.NEGATIVE_INFINITY;
-            let max_direction;
-            for (let value of DIRECTIONS.values()) {
-                let dirVector = vectorOfDirection(value);
-                let newPos = p5.Vector.add(this.position, dirVector)
-                if (dirVector.dot(direction) > max_value && !game.positionHasEnemy(newPos) && game.isInBounds(newPos)) {
-                    max_value = dirVector.dot(direction);
-                    max_direction = dirVector;
-                }
-            }
-            if (max_direction !== undefined) {
-                this.position.add(max_direction);
-            }
+            target = game.fruitPos
+        }
+        let dirVectors = this.getDirVectors(target, seeking, game)
+        if(dirVectors.length > 0) {
+            let dir = dirVectors[0]
+            this.position.add(dir)
         }
     }
+
+    /**
+     * gets legal movement vectors sorted in decreasing optimality
+     * 
+     * @param {pt.Vector} target 
+     * @param {boolean} seeking 
+     */
+    getDirVectors(target, seeking, game) {
+        let dirs = [createVector(1,0), createVector(-1,0), createVector(0,1), createVector(0,-1)]
+        let key
+        let disp = p5.Vector.sub(target, this.position)
+        if(seeking) {
+            key = dir => dir.dot(disp)
+        } else {
+            key = dir => -dir.dot(disp)
+        }
+        dirs.sort((a,b) => key(b) - key(a)) // sort backward
+        dirs = dirs.filter(dir => {
+            let newPos = p5.Vector.add(dir, this.position)
+            return !game.positionHasEnemy(newPos) && game.isInBounds(newPos)
+        })
+        return dirs
+    }
+}
+
+function argmax(xs, key) {
+    let max
+    let maxVal = Number.NEGATIVE_INFINITY
+    xs.forEach(x => {
+        val = key(x)
+        if (val > maxVal) {
+            max = x
+            maxVal = val
+        }
+    });
+    return max
 }

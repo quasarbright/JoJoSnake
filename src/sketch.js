@@ -73,7 +73,6 @@ function draw() {
     curStage = curStage.nextStage();
     curStage.nextFrame();
     curStage.draw();
-
 }
 
 function keyPressed() {
