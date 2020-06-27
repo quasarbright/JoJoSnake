@@ -11,6 +11,7 @@ let playerMoveCount = 0;
 let enemyMoveCount = 0;
 
 let backgroundMusic;
+let silverChariotSound;
 
 let toiletImg;
 let backgroundImg;
@@ -33,6 +34,8 @@ let chariotImg
 function preload() {
     soundFormats('mp3')
     backgroundMusic = loadSound("sounds/sdc.mp3")
+    silverChariotSound = loadSound("sounds/silver_chariot.mp3")
+    
     toiletImg = loadImage('images/toilet.png');
     backgroundImg = loadImage('images/lean.jpg')
     alessiImg = loadImage('images/alessi.png')

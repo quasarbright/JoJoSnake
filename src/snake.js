@@ -68,6 +68,7 @@ class Home extends GameStage {
     processMouse() {
         this.playPressed = true;
         userStartAudio();
+        backgroundMusic.setVolume(.5)
         backgroundMusic.loop();
     }
 }
@@ -462,6 +463,7 @@ class silverChariot extends Enemy {
     constructor(position) {
         let nothing = () => {}
         let health = Math.floor(Math.random() * 4 + 2)
+        silverChariotSound.play()
         super(position, "silver chariot", chariotImg, nothing, nothing, health, nothing)
     }
 
