@@ -219,7 +219,12 @@ class Game extends GameStage {
                 (this.lastMove === D_UP && requestedChange !== D_DOWN) ||
                 (this.lastMove === D_DOWN && requestedChange !== D_UP)) {
                 this.lastMove = requestedChange
-                this.movementQueue.push(this.lastMove);
+                let found = this.movementQueue.find((val) => {
+                    return val === this.lastMove;
+                });
+                if (found === undefined) {
+                    this.movementQueue.push(this.lastMove);
+                }
             }
         }
     }
@@ -327,18 +332,27 @@ class Game extends GameStage {
         // check if enemies are at player
         for (let i = this.enemies.length - 1; i >= 0; i--) {
             let enemy = this.enemies[i]
-            if (enemy.position.equals(this.getHead())) {
-                this.takeHit();
-                this.enemies.splice(i, 1)
-                enemy.onDeath()
+            let enemyDead = this.enemyInPlayer(enemy);
+            if (!enemyDead) {
+                if (enemyMoveCount % ENEMYTICKRATE === 0) {
+                    enemy.move(this);
+                    enemy.power(this);
+                }
+                this.enemyInPlayer(enemy);
             }
         }
-        if (enemyMoveCount % ENEMYTICKRATE === 0) {
-            for (let enemy of this.enemies) {
-                enemy.move(this);
-                enemy.power(this);
-            }
+
+    }
+
+    enemyInPlayer(enemy) {
+        let index = this.enemies.indexOf(enemy);
+        if (enemy.position.equals(this.getHead())) {
+            this.takeHit();
+            this.enemies.splice(index, 1);
+            enemy.onDeath();
+            return true;
         }
+        return false;
     }
 
     spawnEnemy() {
@@ -352,6 +366,7 @@ class Game extends GameStage {
 
 class Enemy {
     static toilerSeekerProbability = 0.2;
+
     constructor(position, id, sprite, onSpawn, onDeath, health, power) {
         this.hasFruit = false;
         this.position = position
@@ -387,7 +402,7 @@ class Enemy {
             target = game.fruitPos
         }
         let dirVectors = this.getDirVectors(target, seeking, game)
-        if(dirVectors.length > 0) {
+        if (dirVectors.length > 0) {
             let dir = dirVectors[0]
             this.position.add(dir)
         }
@@ -395,20 +410,20 @@ class Enemy {
 
     /**
      * gets legal movement vectors sorted in decreasing optimality
-     * 
-     * @param {pt.Vector} target 
-     * @param {boolean} seeking 
+     *
+     * @param {pt.Vector} target
+     * @param {boolean} seeking
      */
     getDirVectors(target, seeking, game) {
-        let dirs = [createVector(1,0), createVector(-1,0), createVector(0,1), createVector(0,-1)]
+        let dirs = [createVector(1, 0), createVector(-1, 0), createVector(0, 1), createVector(0, -1)]
         let key
         let disp = p5.Vector.sub(target, this.position)
-        if(seeking) {
+        if (seeking) {
             key = dir => dir.dot(disp)
         } else {
             key = dir => -dir.dot(disp)
         }
-        dirs.sort((a,b) => key(b) - key(a)) // sort backward
+        dirs.sort((a, b) => key(b) - key(a)) // sort backward
         dirs = dirs.filter(dir => {
             let newPos = p5.Vector.add(dir, this.position)
             return !game.positionHasEnemy(newPos) && game.isInBounds(newPos)
