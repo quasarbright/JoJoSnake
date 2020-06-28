@@ -72,8 +72,6 @@ class Home extends GameStage {
 
 class Game extends GameStage {
 
-    movementQueue = []; // the queue of moves to make when it is the players turn
-    lastMove = D_RIGHT; // the last move the player actually made
     static SILVER_CHARIOT_STREAK_REQUIREMENT = 5
 
 
@@ -104,7 +102,8 @@ class Game extends GameStage {
     constructor() {
         super();
         // first ele is head, rest is tail
-
+        this.movementQueue = []; // the queue of moves to make when it is the players turn
+        this.lastMove = D_RIGHT; // the last move the player actually made
         this.dead = false
         this.deathAcknowledged = false
         this.width = 15
@@ -151,10 +150,39 @@ class Game extends GameStage {
     draw() {
         fill(255, 255, 255);
 
+        let that = this
+        function drawSegment(prev, curr, next) {
+            if (prev === undefined) {
+                prev = p5.Vector.add(vectorOfDirection(that.lastMove), curr)
+            }
+            
+        }
+
         let tail = this.tail;
-        for (let piece of tail) {
-            fill(255, 0, 0);
-            rect(piece.x * tileWidth, piece.y * tileHeight, tileWidth, tileHeight);
+        for (let i = 0; i < this.tail.length; i++) {
+            push()
+            imageMode(CENTER)
+            let piece = this.tail[i]
+            if (i === 0) {
+                switch (this.lastMove) {
+                    case D_DOWN:
+                        
+                        break;
+                    case D_UP:
+                        rotate(PI)
+                        break;
+                    case D_RIGHT:
+                        rotate(PI/2)
+                        break
+                    case D_LEFT:
+                        rotate(-PI/2)
+                    default:
+                        break;
+                }
+                image(polBottom, (piece.x+1/2) * tileWidth, (piece.y+1/2) * tileHeight, tileWidth, tileHeight)
+            }
+            pop()
+            // rect(piece.x * tileWidth, piece.y * tileHeight, tileWidth, tileHeight);
         }
 
         for (let enemy of this.enemies) {

@@ -31,6 +31,11 @@ let geilImg;
 let creamImg;
 let judgementImg;
 let iggyImg;
+let chariotImg
+let polBottom;
+let polMiddle;
+let polCorner;
+let polTop;
 
 let ZAWARUDOSOUND;
 let MUDAMUDASOUND;
@@ -68,6 +73,10 @@ function preload() {
     judgementImg = loadImage('images/hail2u.png')
     iggyImg = loadImage('images/iggy.png')
     chariotImg = loadImage('images/silver_chariot.jpg')
+    polBottom = loadImage('images/pol_bottom.png')
+    polMiddle = loadImage('images/pol_middle.png')
+    polCorner = loadImage('images/pol_corner.png')
+    polTop = loadImage('images/pol_top.png')
 }
 
 let curStage;
