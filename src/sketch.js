@@ -13,6 +13,8 @@ let enemyMoveCount = 0;
 let backgroundMusic;
 let silverChariotSound;
 let flushSound;
+let lalihoSound;
+let babySound;
 
 let toiletImg;
 let backgroundImg;
@@ -54,9 +56,11 @@ function preload() {
     // load onspawn sounds
     silverChariotSound = loadSound("sounds/silver_chariot.mp3")
     DIOSPAWNSOUND = loadSound("sounds/DIOSPAWN.mp3");
+    lalihoSound = loadSound("sounds/laliho.mp3")
 
     // load ondeath sounds
     MUDAMUDASOUND = loadSound("sounds/DIODEATHMUDA.mp3")
+    babySound = loadSound("sounds/baby.mp3")
 
     // load images
     toiletImg = loadImage('images/toilet.png');
@@ -172,8 +176,8 @@ function setup() {
         },
         {
             img: death_13Img,
-            onSpawn: () => null,
-            onDeath: () => null,
+            onSpawn: () => lalihoSound.play(),
+            onDeath: () => babySound.play(),
             health: 8,
             id: "DEATH_13",
             power: (outerGame) => {
