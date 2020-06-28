@@ -150,14 +150,6 @@ class Game extends GameStage {
     draw() {
         fill(255, 255, 255);
 
-        let that = this
-        function drawSegment(prev, curr, next) {
-            if (prev === undefined) {
-                prev = p5.Vector.add(vectorOfDirection(that.lastMove), curr)
-            }
-            
-        }
-
         let tail = this.tail;
         for (let i = 0; i < this.tail.length; i++) {
             push()
