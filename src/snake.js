@@ -163,24 +163,83 @@ class Game extends GameStage {
             push()
             imageMode(CENTER)
             let piece = this.tail[i]
+            translate((piece.x+1/2) * tileWidth, (piece.y+1/2) * tileHeight)
+            let sprite
             if (i === 0) {
+                sprite = polBottom
                 switch (this.lastMove) {
                     case D_DOWN:
-                        
                         break;
                     case D_UP:
-                        rotate(PI)
+                        rotate(PI);
                         break;
                     case D_RIGHT:
-                        rotate(PI/2)
-                        break
+                        rotate(-PI/2);
+                        break;
                     case D_LEFT:
-                        rotate(-PI/2)
+                        rotate(PI/2);
+                        break;
                     default:
+                        console.error("unknown last move")
                         break;
                 }
-                image(polBottom, (piece.x+1/2) * tileWidth, (piece.y+1/2) * tileHeight, tileWidth, tileHeight)
+            } else if (i > 0 && i < this.tail.length-1) {
+                let prev = this.tail[i-1]
+                let next = this.tail[i+1]
+                let toPrev = p5.Vector.sub(prev, piece)
+                let toNext = p5.Vector.sub(next, piece)
+                if(toPrev.equals(createVector(-1,0)) && toNext.equals(createVector(1,0))) {
+                    rotate(PI/2)
+                    sprite = polMiddle
+                } else if(toPrev.equals(createVector(1, 0)) && toNext.equals(createVector(-1, 0))) {
+                    rotate(-PI/2)
+                    sprite = polMiddle
+                } else if(toPrev.equals(createVector(0, 1)) && toNext.equals(createVector(0, -1))) {
+                    sprite = polMiddle
+                } else if(toPrev.equals(createVector(0, -1)) && toNext.equals(createVector(0, 1))) {
+                    rotate(PI)
+                    sprite = polMiddle
+                } else if(toPrev.equals(createVector(0,1)) && toNext.equals(-1,0)) {
+                    sprite = polCorner
+                } else if(toPrev.equals(createVector(-1, 0)) && toNext.equals(0, -1)) {
+                    rotate(PI/2)
+                    sprite = polCorner
+                } else if (toPrev.equals(createVector(0, -1)) && toNext.equals(1, 0)) {
+                    rotate(PI)
+                    sprite = polCorner
+                } else if(toPrev.equals(createVector(1, 0)) && toNext.equals(0, 1)) {
+                    rotate(-PI/2)
+                    sprite = polCorner
+                } else if (toPrev.equals(createVector(0, 1)) && toNext.equals(1, 0)) {
+                    scale(-1,1)
+                    sprite = polCorner
+                } else if (toPrev.equals(createVector(-1, 0)) && toNext.equals(0, 1)) {
+                    rotate(PI / 2)
+                    scale(1,-1)
+                    sprite = polCorner
+                } else if (toPrev.equals(createVector(0, -1)) && toNext.equals(-1, 0)) {
+                    rotate(PI)
+                    scale(-1,1)
+                    sprite = polCorner
+                } else if (toPrev.equals(createVector(1, 0)) && toNext.equals(0, -1)) {
+                    rotate(-PI/2)
+                    scale(1,-1)
+                    sprite = polCorner
+                }
+            } else if (i > 0 && i === this.tail.length-1) {
+                let prev = this.tail[i - 1]
+                let toPrev = p5.Vector.sub(prev, piece)
+                sprite = polTop
+                if(toPrev.equals(createVector(0,-1))) {
+                    rotate(PI)
+                } else if(toPrev.equals(createVector(-1, 0))) {
+                    rotate(PI/2)
+                } else if(toPrev.equals(createVector(1,0))) {
+                    rotate(-PI/2)
+                } else if(toPrev.equals(createVector(0,1))) {
+                }
             }
+            image(sprite, 0, 0, tileWidth, tileHeight)
             pop()
             // rect(piece.x * tileWidth, piece.y * tileHeight, tileWidth, tileHeight);
         }
