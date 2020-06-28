@@ -12,6 +12,7 @@ let enemyMoveCount = 0;
 
 let backgroundMusic;
 let silverChariotSound;
+let flushSound;
 
 let toiletImg;
 let backgroundImg;
@@ -48,6 +49,7 @@ function preload() {
 
     // load sound effects
     ZAWARUDOSOUND = loadSound("sounds/ZAWARUDO.mp3");
+    flushSound = loadSound("sounds/flush.mp3")
 
     // load onspawn sounds
     silverChariotSound = loadSound("sounds/silver_chariot.mp3")

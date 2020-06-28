@@ -144,7 +144,6 @@ class Game extends GameStage {
                 nextFrameRequested = false;
             }
         }
-
     }
 
     draw() {
@@ -343,6 +342,7 @@ class Game extends GameStage {
     }
 
     onFruitEat() {
+        flushSound.play()
         this.streak++
         if (this.streak == Game.SILVER_CHARIOT_STREAK_REQUIREMENT) {
             this.silverChariot()
