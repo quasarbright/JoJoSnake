@@ -5,9 +5,6 @@ let D_DOWN = "D_DOWN"
 let D_LEFT = "D_LEFT"
 let D_RIGHT = "D_RIGHT"
 
-DIRECTIONS = new Map([["D_UP", D_UP], ["D_DOWN", D_DOWN], ["D_LEFT", D_LEFT], ["D_RIGHT", D_RIGHT]]);
-
-
 function vectorOfDirection(direction) {
     switch (direction) {
         case D_UP:
