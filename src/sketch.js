@@ -4,12 +4,14 @@ let tileWidth;
 const PLAYERTICKRATE = 10;
 const DIFFICULTY = 3;
 const ENEMYTICKRATE = PLAYERTICKRATE * DIFFICULTY;
-const ZAWARDUODISTANCE = 6;
+const CHARIOTTICKRATE = PLAYERTICKRATE;
+const ZAWARDUODISTANCE = 5;
 
 let playerMoveCount = 0;
 let enemyMoveCount = 0;
 
 let backgroundMusic;
+let silverChariotSound;
 
 let toiletImg;
 let backgroundImg;
@@ -36,13 +38,16 @@ let DIOSPAWNSOUND;
 function preload() {
     soundFormats('mp3')
     backgroundMusic = loadSound("sounds/sdc.mp3");
+
     // load sound effects
     ZAWARUDOSOUND = loadSound("sounds/ZAWARUDO.mp3");
-    MUDAMUDASOUND = loadSound("sounds/DIODEATHMUDA.mp3")
-    DIOSPAWNSOUND = loadSound("sounds/DIOSPAWN.mp3");
+
     // load onspawn sounds
+    silverChariotSound = loadSound("sounds/silver_chariot.mp3")
+    DIOSPAWNSOUND = loadSound("sounds/DIOSPAWN.mp3");
 
     // load ondeath sounds
+    MUDAMUDASOUND = loadSound("sounds/DIODEATHMUDA.mp3")
 
     // load images
     toiletImg = loadImage('images/toilet.png');
@@ -58,6 +63,7 @@ function preload() {
     creamImg = loadImage('images/vanilla_ice_cream.png')
     judgementImg = loadImage('images/hail2u.png')
     iggyImg = loadImage('images/iggy.png')
+    chariotImg = loadImage('images/silver_chariot.jpg')
 }
 
 let curStage;
@@ -72,7 +78,7 @@ function setup() {
     curStage = new Home();
     createCanvas(800, 800);
     frameRate(60);
-    let testEnemyInfos = [
+    let _enemyInfos = [
         {
             img: dioImg, onSpawn: () => {
                 DIOSPAWNSOUND.play();
@@ -112,7 +118,7 @@ function setup() {
                                 enemyMoveCount %= ENEMYTICKRATE;
                                 if (enemyMoveCount === 0) {
                                     dio.move(game);
-                                    let dead = game.enemyInPlayer(dio);
+                                    let dead = game.enemyInPlayerOrAlly(dio);
                                     if (dead) {
                                         game._nextFrame = old_generator;
                                         backgroundMusic.play();
@@ -197,7 +203,7 @@ function setup() {
                                 enemyMoveCount %= ENEMYTICKRATE;
                                 if (enemyMoveCount === 0) {
                                     dio.move(game);
-                                    let dead = game.enemyInPlayer(dio);
+                                    let dead = game.enemyInPlayerOrAlly(dio);
                                     if (dead) {
                                         game._nextFrame = old_generator;
                                         backgroundMusic.play();

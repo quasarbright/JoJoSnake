@@ -68,6 +68,7 @@ class Home extends GameStage {
     processMouse() {
         this.playPressed = true;
         userStartAudio();
+        backgroundMusic.setVolume(.5)
         backgroundMusic.loop();
     }
 }
@@ -76,14 +77,12 @@ class Game extends GameStage {
 
     movementQueue = []; // the queue of moves to make when it is the players turn
     lastMove = D_RIGHT; // the last move the player actually made
+    static SILVER_CHARIOT_STREAK_REQUIREMENT = 5
 
 
     _nextFrame = function* (game) {
         while (true) {
             if (playerMoveCount % PLAYERTICKRATE === 0) {
-                if (game.streak >= 5) {
-                    game.silverChariot()
-                }
                 if (game.movementQueue.length === 0) {
                     game.movePlayer(game.lastMove);
                 }
@@ -99,6 +98,7 @@ class Game extends GameStage {
             playerMoveCount %= PLAYERTICKRATE;
 
             game.updateEnemies();
+            game.updateAllies()
 
             yield;
         }
@@ -124,6 +124,7 @@ class Game extends GameStage {
         this.tail = [createVector(floor(this.width / 2), floor(this.height / 2))]
         this.fruitPos = null
         this.enemies = []
+        this.allies = []
         this.respawnFruit()
         this.spawnEnemy()
         this.fruitEatCount = 0
@@ -161,6 +162,10 @@ class Game extends GameStage {
 
         for (let enemy of this.enemies) {
             image(enemy.sprite, enemy.position.x * tileWidth, enemy.position.y * tileHeight, tileWidth, tileHeight);
+        }
+
+        for (let ally of this.allies) {
+            image(ally.sprite, ally.position.x * tileWidth, ally.position.y * tileHeight, tileWidth, tileHeight)
         }
 
         image(toiletImg, this.fruitPos.x * tileWidth, this.fruitPos.y * tileHeight, tileWidth, tileHeight);
@@ -207,7 +212,6 @@ class Game extends GameStage {
                 } else {
                     backgroundMusic.play();
                 }
-
                 break
             case 82: // r - restart
                 restart = true;
@@ -264,6 +268,9 @@ class Game extends GameStage {
 
     onFruitEat() {
         this.streak++
+        if (this.streak == Game.SILVER_CHARIOT_STREAK_REQUIREMENT) {
+            this.silverChariot()
+        }
         this.respawnFruit()
         this.fruitEatCount++
         if (this.fruitEatCount % this.enemySpawnPeriod === 0) {
@@ -283,7 +290,7 @@ class Game extends GameStage {
     }
 
     silverChariot() {
-        console.log("SHIRUBA CHARIOTTO")
+        this.allies.push(new silverChariot(this.getHead().copy()))
     }
 
     generatePositionNotInTail() {
@@ -332,20 +339,28 @@ class Game extends GameStage {
         // check if enemies are at player
         for (let i = this.enemies.length - 1; i >= 0; i--) {
             let enemy = this.enemies[i]
-            let enemyDead = this.enemyInPlayer(enemy);
+            let enemyDead = this.enemyInPlayerOrAlly(enemy);
             if (!enemyDead) {
                 if (enemyMoveCount % ENEMYTICKRATE === 0) {
                     enemy.move(this);
                     enemy.power(this);
                 }
-                this.enemyInPlayer(enemy);
+                this.enemyInPlayerOrAlly(enemy);
             }
         }
-
     }
 
-    enemyInPlayer(enemy) {
+
+    enemyInPlayerOrAlly(enemy) {
         let index = this.enemies.indexOf(enemy);
+        for (let ally of this.allies) {
+            if (ally.position.equals(enemy.position)) {
+                ally.health--
+                this.enemies.splice(index, 1);
+                enemy.onDeath();
+                return true;
+            }
+        }
         if (enemy.position.equals(this.getHead())) {
             this.takeHit();
             this.enemies.splice(index, 1);
@@ -353,6 +368,23 @@ class Game extends GameStage {
             return true;
         }
         return false;
+    }
+
+    updateAllies() {
+        if (enemyMoveCount % CHARIOTTICKRATE === 0) {
+            for (let i = this.allies.length - 1; i >= 0; i--) {
+                let ally = this.allies[i]
+                if (ally.health <= 0) {
+                    this.allies.splice(i, 1)
+                    ally.onDeath()
+                    if (ally.id === "silver chariot") {
+                        this.streak = 0
+                    }
+                } else {
+                    ally.move(this)
+                }
+            }
+        }
     }
 
     spawnEnemy() {
@@ -401,7 +433,17 @@ class Enemy {
         } else {
             target = game.fruitPos
         }
-        let dirVectors = this.getDirVectors(target, seeking, game)
+
+        let goodDir = dir => {
+            let newPos = p5.Vector.add(dir, this.position)
+            return !game.positionHasEnemy(newPos) && game.isInBounds(newPos)
+        }
+
+        let dirVectors = this.getDirVectors(target, seeking, goodDir)
+        dirVectors = dirVectors.filter(dir => {
+            let newPos = p5.Vector.add(dir, this.position)
+            return !game.positionHasEnemy(newPos) && game.isInBounds(newPos)
+        })
         if (dirVectors.length > 0) {
             let dir = dirVectors[0]
             this.position.add(dir)
@@ -414,7 +456,7 @@ class Enemy {
      * @param {pt.Vector} target
      * @param {boolean} seeking
      */
-    getDirVectors(target, seeking, game) {
+    getDirVectors(target, seeking) {
         let dirs = [createVector(1, 0), createVector(-1, 0), createVector(0, 1), createVector(0, -1)]
         let key
         let disp = p5.Vector.sub(target, this.position)
@@ -424,11 +466,31 @@ class Enemy {
             key = dir => -dir.dot(disp)
         }
         dirs.sort((a, b) => key(b) - key(a)) // sort backward
-        dirs = dirs.filter(dir => {
-            let newPos = p5.Vector.add(dir, this.position)
-            return !game.positionHasEnemy(newPos) && game.isInBounds(newPos)
-        })
+
         return dirs
+    }
+}
+
+class silverChariot extends Enemy {
+    constructor(position) {
+        let nothing = () => {
+        }
+        let health = Math.floor(Math.random() * 4 + 2)
+        silverChariotSound.play()
+        super(position, "silver chariot", chariotImg, nothing, nothing, health, nothing)
+    }
+
+    move(game) {
+        let enemyPositions = game.enemies.map(e => e.position)
+        let target = argmax(enemyPositions, p => taxiDistance(this.position, p))
+        if (target === undefined) {
+            target = game.getHead().copy()
+        }
+        let dirVectors = this.getDirVectors(target, true, game)
+        if (dirVectors.length > 0) {
+            let dir = dirVectors[0]
+            this.position.add(dir)
+        }
     }
 }
 
