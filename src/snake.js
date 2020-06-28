@@ -106,8 +106,8 @@ class Game extends GameStage {
         this.lastMove = D_RIGHT; // the last move the player actually made
         this.dead = false
         this.deathAcknowledged = false
-        this.width = 15
-        this.height = 15
+        this.width = 12
+        this.height = 12
         this.streak = 0
         tileWidth = width / this.width;
         tileHeight = height / this.height;
