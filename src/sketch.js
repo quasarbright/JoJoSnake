@@ -101,8 +101,10 @@ function setup() {
     _enemyInfos = [
         {
             img: dioImg, onSpawn: () => {
+                backgroundImg = dioBackgroundImg;
                 DIOSPAWNSOUND.play();
             }, onDeath: () => {
+                backgroundImg = normalBackgroundImg;
                 DIOSPAWNSOUND.stop();
                 MUDAMUDASOUND.play();
             }, health: 15, power: (outerGame) => {
@@ -187,14 +189,17 @@ function setup() {
         {img: devoImg, onSpawn: () => null, onDeath: () => null, health: 8, id: "DEVO"},
         {
             img: dioImg, onSpawn: () => {
+                backgroundImg = dioBackgroundImg;
                 DIOSPAWNSOUND.play();
             }, onDeath: () => {
+                backgroundImg = normalBackgroundImg;
                 DIOSPAWNSOUND.stop();
                 MUDAMUDASOUND.play();
             }, health: 15, power: (outerGame) => {
                 // ZA WARUDO
                 const old_generator = outerGame._nextFrame;
                 const old_processKey = outerGame.processKey;
+                const old_draw = outerGame.draw;
 
                 let zaWarudoTicks = 0;
                 const player = outerGame.getHead();
@@ -216,6 +221,34 @@ function setup() {
                             yield;
                         }
                     }(outerGame);
+
+                    // deltaTime - beginning previous frame - beginning current frame
+                    let time = 0;
+                    let centerX = width / 2;
+                    let centerY = height / 2;
+                    let nextDrawFrame = function* () {
+                        while (true) {
+                            time += deltaTime;
+                            // get percent of screen to cut out
+                            let screenPercent = lerp(0, 1, time / 4);
+                            let widthAmt = width * screenPercent;
+                            let heightAmt = height * screenPercent;
+                            let x = centerX - (widthAmt / 2);
+                            let y = centerY - (heightAmt / 2);
+                            yield get(x, y, widthAmt, heightAmt);
+                            yield x;
+                            yield y;
+                        }
+                    }();
+                    outerGame.draw = () => {
+                        old_draw();
+                        let cutOut = nextDrawFrame.next();
+                        let x = nextDrawFrame.next();
+                        let y = nextDrawFrame.next();
+                        filter(INVERT);
+                        image(cutOut, x, y);
+                        filter(INVERT);
+                    }
                     setTimeout(() => {
                         enemyMoveCount = 0; // hijack enemy move count and frame generator
                         outerGame._nextFrame = function* (game) {
@@ -258,12 +291,10 @@ function setup() {
 
 function draw() {
 
-    image(backgroundImg, 0, 0, width, height)
-    background(0, 200);
-
     curStage = curStage.nextStage();
     curStage.nextFrame();
     curStage.draw();
+
 }
 
 function keyPressed() {

@@ -65,7 +65,7 @@ class Home extends GameStage {
     processMouse() {
         this.playPressed = true;
         userStartAudio();
-        backgroundMusic.setVolume(.5)
+        backgroundMusic.setVolume(0.4)
         backgroundMusic.loop();
     }
 }
@@ -73,7 +73,6 @@ class Home extends GameStage {
 class Game extends GameStage {
 
     static SILVER_CHARIOT_STREAK_REQUIREMENT = 5
-
 
     _nextFrame = function* (game) {
         while (true) {
@@ -131,6 +130,7 @@ class Game extends GameStage {
     nextFrame() {
         if (restart) {
             curStage = new Game();
+            backgroundImg = normalBackgroundImg;
             backgroundMusic.stop();
             backgroundMusic.play(0);
             restart = false;
@@ -147,6 +147,9 @@ class Game extends GameStage {
     }
 
     draw() {
+
+        image(backgroundImg, 0, 0, width, height)
+
         fill(255, 255, 255);
 
         let tail = this.tail;
@@ -344,7 +347,7 @@ class Game extends GameStage {
     onFruitEat() {
         flushSound.play()
         this.streak++
-        if (this.streak == Game.SILVER_CHARIOT_STREAK_REQUIREMENT) {
+        if (this.streak === Game.SILVER_CHARIOT_STREAK_REQUIREMENT) {
             this.silverChariot()
         }
         this.respawnFruit()
