@@ -9,6 +9,7 @@ const ZAWARDUODISTANCE = 5;
 
 let playerMoveCount = 0;
 let enemyMoveCount = 0;
+let zaWarudoTicks = 0; // for how long zawarudo has been going for
 
 let backgroundMusic;
 let silverChariotSound;
@@ -98,7 +99,7 @@ function setup() {
     createCanvas(800, 800);
     frameRate(60);
     let _enemyInfos;
-    _enemyInfos = [
+    enemyInfos = [
         {
             img: dioImg, onSpawn: () => {
                 backgroundImg = dioBackgroundImg;
@@ -108,63 +109,26 @@ function setup() {
                 DIOSPAWNSOUND.stop();
                 MUDAMUDASOUND.play();
             }, health: 15, power: (outerGame) => {
-                // ZA WARUDO
-                const old_generator = outerGame._nextFrame;
-                const old_processKey = outerGame.processKey;
-
-                let zaWarudoTicks = 0;
-                const player = outerGame.getHead();
-                let dio = outerGame.enemies.filter(enemy => enemy.id === "DIO");
-                if (dio.length > 0) {
-                    dio = dio[0];
-                }
-                let targetPos = dio.toiletSeeker ? outerGame.fruitPos : player;
-                const distance = taxiDistance(targetPos, dio.position)
-                console.log("distance is: " + distance)
-                if (distance < ZAWARDUODISTANCE && !dio.hasFruit) {
+                let targetPos = outerGame.dio.toiletSeeker ? outerGame.fruitPos : outerGame.getHead();
+                console.log(targetPos);
+                const distance = taxiDistance(targetPos, outerGame.dio.position)
+                if (distance < ZAWARDUODISTANCE && !outerGame.dio.hasFruit) {
+                    zaWarudoTicks = 0;
                     backgroundMusic.pause();
                     DIOSPAWNSOUND.stop();
                     ZAWARUDOSOUND.play();
-                    outerGame.processKey = () => {
-                    };
-                    outerGame._nextFrame = function* (game) {
-                        while (true) {
-                            yield;
-                        }
-                    }(outerGame);
+                    outerGame.dioTimeStopped = true;
+                    outerGame.inversionFactor = 0.01; // start the inversion
                     setTimeout(() => {
+                        outerGame.inversionFactor = 0.0;
                         enemyMoveCount = 0; // hijack enemy move count and frame generator
-                        outerGame._nextFrame = function* (game) {
-                            while (zaWarudoTicks <= ENEMYTICKRATE * ZAWARDUODISTANCE) {
-                                // update enemies
-                                enemyMoveCount += 1;
-                                enemyMoveCount %= ENEMYTICKRATE;
-                                if (enemyMoveCount === 0) {
-                                    dio.move(game);
-                                    let dead = game.enemyInPlayerOrAlly(dio);
-                                    if (dead) {
-                                        game._nextFrame = old_generator;
-                                        backgroundMusic.play();
-                                        game.processKey = old_processKey;
-                                        yield;
-                                    }
-                                }
-                                zaWarudoTicks += 1;
-                                yield;
-                            }
-                            ZAWARUDOSOUND.stop();
-                            backgroundMusic.play();
-                            game._nextFrame = old_generator;
-                            game.processKey = old_processKey;
-                            yield;
-                        }(outerGame);
                     }, 4000);
                 }
             },
             id: "DIO"
         }
     ]
-    enemyInfos = [
+    _enemyInfos = [
         // img, onSpawn, onDeath, health
         {
             img: alessiImg, onSpawn: () => null, onDeath: () => null, health: 5, id: "ALESSI", power: (outerGame) => {
@@ -201,82 +165,7 @@ function setup() {
                 const old_processKey = outerGame.processKey;
                 const old_draw = outerGame.draw;
 
-                let zaWarudoTicks = 0;
-                const player = outerGame.getHead();
-                let dio = outerGame.enemies.filter(enemy => enemy.id === "DIO");
-                if (dio.length > 0) {
-                    dio = dio[0];
-                }
-                let targetPos = dio.toiletSeeker ? outerGame.fruitPos : player;
-                const distance = taxiDistance(targetPos, dio.position)
-                console.log("distance is: " + distance)
-                if (distance < ZAWARDUODISTANCE && !dio.hasFruit) {
-                    backgroundMusic.pause();
-                    DIOSPAWNSOUND.stop();
-                    ZAWARUDOSOUND.play();
-                    outerGame.processKey = () => {
-                    };
-                    outerGame._nextFrame = function* (game) {
-                        while (true) {
-                            yield;
-                        }
-                    }(outerGame);
 
-                    // deltaTime - beginning previous frame - beginning current frame
-                    let time = 0;
-                    let centerX = width / 2;
-                    let centerY = height / 2;
-                    let nextDrawFrame = function* () {
-                        while (true) {
-                            time += deltaTime;
-                            // get percent of screen to cut out
-                            let screenPercent = lerp(0, 1, time / 4);
-                            let widthAmt = width * screenPercent;
-                            let heightAmt = height * screenPercent;
-                            let x = centerX - (widthAmt / 2);
-                            let y = centerY - (heightAmt / 2);
-                            yield get(x, y, widthAmt, heightAmt);
-                            yield x;
-                            yield y;
-                        }
-                    }();
-                    outerGame.draw = () => {
-                        old_draw();
-                        let cutOut = nextDrawFrame.next();
-                        let x = nextDrawFrame.next();
-                        let y = nextDrawFrame.next();
-                        filter(INVERT);
-                        image(cutOut, x, y);
-                        filter(INVERT);
-                    }
-                    setTimeout(() => {
-                        enemyMoveCount = 0; // hijack enemy move count and frame generator
-                        outerGame._nextFrame = function* (game) {
-                            while (zaWarudoTicks <= ENEMYTICKRATE * ZAWARDUODISTANCE) {
-                                // update enemies
-                                enemyMoveCount += 1;
-                                enemyMoveCount %= ENEMYTICKRATE;
-                                if (enemyMoveCount === 0) {
-                                    dio.move(game);
-                                    let dead = game.enemyInPlayerOrAlly(dio);
-                                    if (dead) {
-                                        game._nextFrame = old_generator;
-                                        backgroundMusic.play();
-                                        game.processKey = old_processKey;
-                                        yield;
-                                    }
-                                }
-                                zaWarudoTicks += 1;
-                                yield;
-                            }
-                            ZAWARUDOSOUND.stop();
-                            backgroundMusic.play();
-                            game._nextFrame = old_generator;
-                            game.processKey = old_processKey;
-                            yield;
-                        }(outerGame);
-                    }, 4000);
-                }
             },
             id: "DIO"
         },

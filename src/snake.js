@@ -74,6 +74,7 @@ class Game extends GameStage {
 
     static SILVER_CHARIOT_STREAK_REQUIREMENT = 5
 
+<<<<<<< HEAD
     _nextFrame = function* (game) {
         while (true) {
             if (playerMoveCount % PLAYERTICKRATE === 0) {
@@ -97,12 +98,17 @@ class Game extends GameStage {
             yield;
         }
     };
+=======
+>>>>>>> 5070ed1... dio fix, no more organ transplants, beginning of zawarudo animation
 
     constructor() {
         super();
         // first ele is head, rest is tail
         this.movementQueue = []; // the queue of moves to make when it is the players turn
         this.lastMove = D_RIGHT; // the last move the player actually made
+        this.dioTimeStopped = false; // whether ZAWARUDO is active
+        this.inversionFactor = 0.0; // how much to invert screen if time stopped
+        this.dio = undefined;
         this.dead = false
         this.deathAcknowledged = false
         this.width = 12
@@ -124,7 +130,57 @@ class Game extends GameStage {
         this.spawnEnemy()
         this.fruitEatCount = 0
         this.enemySpawnPeriod = 3
-        this._nextFrame = this._nextFrame(this);
+        this._nextFrame = function* (game) {
+            while (true) {
+                if (playerMoveCount % PLAYERTICKRATE === 0) {
+                    if (game.movementQueue.length === 0) {
+                        game.movePlayer(game.lastMove);
+                    }
+                    for (let move of game.movementQueue) {
+                        game.lastMove = move;
+                        game.movePlayer(move);
+                    }
+                    game.movementQueue = [];
+                }
+                enemyMoveCount += 1;
+                enemyMoveCount %= ENEMYTICKRATE;
+                playerMoveCount += 1;
+                playerMoveCount %= PLAYERTICKRATE;
+
+                game.updateEnemies();
+                game.updateAllies()
+
+                yield;
+            }
+        }(this);
+        this._dioNextFrame = function* (game) {
+            while (true) {
+                console.log(game.inversionFactor);
+                if (game.inversionFactor === 0 && game.dioTimeStopped) {
+                    if (zaWarudoTicks <= ENEMYTICKRATE * ZAWARDUODISTANCE) {
+                        // update enemies
+                        enemyMoveCount += 1;
+                        enemyMoveCount %= ENEMYTICKRATE;
+                        if (enemyMoveCount === 0) {
+                            game.dio.move(game);
+                            let dead = game.enemyInPlayerOrAlly(game.dio);
+                            if (dead) {
+                                // do some stuff
+                                game.dioTimeStopped = false;
+                                yield;
+                            }
+                        }
+                        zaWarudoTicks += 1;
+                        yield;
+                    } else {
+                        game.dioTimeStopped = false;
+                        yield;
+                    }
+                } else {
+                    yield;
+                }
+            }
+        }(this)
     }
 
     nextFrame() {
@@ -137,10 +193,18 @@ class Game extends GameStage {
         }
 
         if (!keyFrameMode) {
-            this._nextFrame.next();
+            if (!this.dioTimeStopped) {
+                this._nextFrame.next();
+            } else {
+                this._dioNextFrame.next();
+            }
         } else if (keyFrameMode) {
             if (nextFrameRequested) {
-                this._nextFrame.next();
+                if (!this.dioTimeStopped) {
+                    this._nextFrame.next();
+                } else {
+                    this._dioNextFrame.next();
+                }
                 nextFrameRequested = false;
             }
         }
@@ -152,12 +216,24 @@ class Game extends GameStage {
 
         fill(255, 255, 255);
 
+<<<<<<< HEAD
+=======
+        let that = this
+
+        function drawSegment(prev, curr, next) {
+            if (prev === undefined) {
+                prev = p5.Vector.add(vectorOfDirection(that.lastMove), curr)
+            }
+
+        }
+
+>>>>>>> 5070ed1... dio fix, no more organ transplants, beginning of zawarudo animation
         let tail = this.tail;
         for (let i = 0; i < this.tail.length; i++) {
             push()
             imageMode(CENTER)
             let piece = this.tail[i]
-            translate((piece.x+1/2) * tileWidth, (piece.y+1/2) * tileHeight)
+            translate((piece.x + 1 / 2) * tileWidth, (piece.y + 1 / 2) * tileHeight)
             let sprite
             if (i === 0) {
                 sprite = polBottom
@@ -168,69 +244,69 @@ class Game extends GameStage {
                         rotate(PI);
                         break;
                     case D_RIGHT:
-                        rotate(-PI/2);
+                        rotate(-PI / 2);
                         break;
                     case D_LEFT:
-                        rotate(PI/2);
+                        rotate(PI / 2);
                         break;
                     default:
                         console.error("unknown last move")
                         break;
                 }
-            } else if (i > 0 && i < this.tail.length-1) {
-                let prev = this.tail[i-1]
-                let next = this.tail[i+1]
+            } else if (i > 0 && i < this.tail.length - 1) {
+                let prev = this.tail[i - 1]
+                let next = this.tail[i + 1]
                 let toPrev = p5.Vector.sub(prev, piece)
                 let toNext = p5.Vector.sub(next, piece)
-                if(toPrev.equals(createVector(-1,0)) && toNext.equals(createVector(1,0))) {
-                    rotate(PI/2)
+                if (toPrev.equals(createVector(-1, 0)) && toNext.equals(createVector(1, 0))) {
+                    rotate(PI / 2)
                     sprite = polMiddle
-                } else if(toPrev.equals(createVector(1, 0)) && toNext.equals(createVector(-1, 0))) {
-                    rotate(-PI/2)
+                } else if (toPrev.equals(createVector(1, 0)) && toNext.equals(createVector(-1, 0))) {
+                    rotate(-PI / 2)
                     sprite = polMiddle
-                } else if(toPrev.equals(createVector(0, 1)) && toNext.equals(createVector(0, -1))) {
+                } else if (toPrev.equals(createVector(0, 1)) && toNext.equals(createVector(0, -1))) {
                     sprite = polMiddle
-                } else if(toPrev.equals(createVector(0, -1)) && toNext.equals(createVector(0, 1))) {
+                } else if (toPrev.equals(createVector(0, -1)) && toNext.equals(createVector(0, 1))) {
                     rotate(PI)
                     sprite = polMiddle
-                } else if(toPrev.equals(createVector(0,1)) && toNext.equals(-1,0)) {
+                } else if (toPrev.equals(createVector(0, 1)) && toNext.equals(-1, 0)) {
                     sprite = polCorner
-                } else if(toPrev.equals(createVector(-1, 0)) && toNext.equals(0, -1)) {
-                    rotate(PI/2)
+                } else if (toPrev.equals(createVector(-1, 0)) && toNext.equals(0, -1)) {
+                    rotate(PI / 2)
                     sprite = polCorner
                 } else if (toPrev.equals(createVector(0, -1)) && toNext.equals(1, 0)) {
                     rotate(PI)
                     sprite = polCorner
-                } else if(toPrev.equals(createVector(1, 0)) && toNext.equals(0, 1)) {
-                    rotate(-PI/2)
+                } else if (toPrev.equals(createVector(1, 0)) && toNext.equals(0, 1)) {
+                    rotate(-PI / 2)
                     sprite = polCorner
                 } else if (toPrev.equals(createVector(0, 1)) && toNext.equals(1, 0)) {
-                    scale(-1,1)
+                    scale(-1, 1)
                     sprite = polCorner
                 } else if (toPrev.equals(createVector(-1, 0)) && toNext.equals(0, 1)) {
                     rotate(PI / 2)
-                    scale(1,-1)
+                    scale(1, -1)
                     sprite = polCorner
                 } else if (toPrev.equals(createVector(0, -1)) && toNext.equals(-1, 0)) {
                     rotate(PI)
-                    scale(-1,1)
+                    scale(-1, 1)
                     sprite = polCorner
                 } else if (toPrev.equals(createVector(1, 0)) && toNext.equals(0, -1)) {
-                    rotate(-PI/2)
-                    scale(1,-1)
+                    rotate(-PI / 2)
+                    scale(1, -1)
                     sprite = polCorner
                 }
-            } else if (i > 0 && i === this.tail.length-1) {
+            } else if (i > 0 && i === this.tail.length - 1) {
                 let prev = this.tail[i - 1]
                 let toPrev = p5.Vector.sub(prev, piece)
                 sprite = polTop
-                if(toPrev.equals(createVector(0,-1))) {
+                if (toPrev.equals(createVector(0, -1))) {
                     rotate(PI)
-                } else if(toPrev.equals(createVector(-1, 0))) {
-                    rotate(PI/2)
-                } else if(toPrev.equals(createVector(1,0))) {
-                    rotate(-PI/2)
-                } else if(toPrev.equals(createVector(0,1))) {
+                } else if (toPrev.equals(createVector(-1, 0))) {
+                    rotate(PI / 2)
+                } else if (toPrev.equals(createVector(1, 0))) {
+                    rotate(-PI / 2)
+                } else if (toPrev.equals(createVector(0, 1))) {
                 }
             }
             image(sprite, 0, 0, tileWidth, tileHeight)
@@ -247,6 +323,32 @@ class Game extends GameStage {
         }
 
         image(toiletImg, this.fruitPos.x * tileWidth, this.fruitPos.y * tileHeight, tileWidth, tileHeight);
+
+        if (this.dioTimeStopped) {
+            if (this.inversionFactor > 0) {
+                let widthAmt = width * this.inversionFactor;
+                let heightAmt = height * this.inversionFactor;
+                let centerX = width / 2;
+                let centerY = height / 2;
+                let x = centerX - (widthAmt / 2);
+                let y = centerY - (heightAmt / 2);
+                let cutOut = get(x, y, widthAmt, heightAmt);
+                filter(INVERT);
+                image(cutOut, x, y);
+                filter(INVERT);
+
+                // calculate new inversion factor
+                console.log("inversion factor: " + this.inversionFactor);
+                let time = this.inversionFactor * 4.0;
+                console.log("current time: " + time);
+                console.log("delta time: " + deltaTime);
+                time += (deltaTime/1000);
+                console.log("new time: " + time);
+                this.inversionFactor = lerp(0, 1, time / 4);
+                console.log("new inversion factor: " + this.inversionFactor);
+                console.log("");
+            }
+        }
     }
 
     nextStage() {
@@ -295,17 +397,19 @@ class Game extends GameStage {
                 restart = true;
                 break
         }
-        if (requestedChange !== undefined) {
-            if ((this.lastMove === D_LEFT && requestedChange !== D_RIGHT) ||
-                (this.lastMove === D_RIGHT && requestedChange !== D_LEFT) ||
-                (this.lastMove === D_UP && requestedChange !== D_DOWN) ||
-                (this.lastMove === D_DOWN && requestedChange !== D_UP)) {
-                this.lastMove = requestedChange
-                let found = this.movementQueue.find((val) => {
-                    return val === this.lastMove;
-                });
-                if (found === undefined) {
-                    this.movementQueue.push(this.lastMove);
+        if (!this.dioTimeStopped) {
+            if (requestedChange !== undefined) {
+                if ((this.lastMove === D_LEFT && requestedChange !== D_RIGHT) ||
+                    (this.lastMove === D_RIGHT && requestedChange !== D_LEFT) ||
+                    (this.lastMove === D_UP && requestedChange !== D_DOWN) ||
+                    (this.lastMove === D_DOWN && requestedChange !== D_UP)) {
+                    this.lastMove = requestedChange
+                    let found = this.movementQueue.find((val) => {
+                        return val === this.lastMove;
+                    });
+                    if (found === undefined) {
+                        this.movementQueue.push(this.lastMove);
+                    }
                 }
             }
         }
@@ -429,7 +533,6 @@ class Game extends GameStage {
         }
     }
 
-
     enemyInPlayerOrAlly(enemy) {
         let index = this.enemies.indexOf(enemy);
         for (let ally of this.allies) {
@@ -481,9 +584,21 @@ class Game extends GameStage {
         let info = choose(enemyInfos)
         let position = this.generatePositionNotInTail()
         let enemy = new Enemy(position, info.id, info.img, info.onSpawn, info.onDeath, info.health, info.power)
+        if (enemy.id === "DIO") {
+            if (this.dio !== undefined) {
+                this.spawnEnemy();
+                return;
+            } else {
+                console.log("setting dio");
+                console.log(enemy);
+                this.dio = enemy;
+            }
+        }
         this.addEnemy(enemy)
         enemy.onSpawn()
     }
+
+
 }
 
 class Enemy {
