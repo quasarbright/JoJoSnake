@@ -15,6 +15,8 @@ let silverChariotSound;
 
 let toiletImg;
 let backgroundImg;
+let dioBackgroundImg;
+let normalBackgroundImg; // for swapping purposes
 let keyFrameMode = false;
 let nextFrameRequested = false;
 let restart = false;
@@ -52,6 +54,8 @@ function preload() {
     // load images
     toiletImg = loadImage('images/toilet.png');
     backgroundImg = loadImage('images/lean.jpg')
+    dioBackgroundImg = loadImage('images/diobg.png')
+    normalBackgroundImg = backgroundImg
     alessiImg = loadImage('images/alessi.png')
     anubisImg = loadImage('images/anubis.png')
     death_13Img = loadImage('images/death_13.png')
