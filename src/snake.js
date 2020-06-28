@@ -381,13 +381,24 @@ class Game extends GameStage {
         for (let ally of this.allies) {
             if (ally.position.equals(enemy.position)) {
                 ally.health--
+                if (enemy.id === "DIO") {
+                    ally.health = 0;
+                }
                 this.enemies.splice(index, 1);
                 enemy.onDeath();
                 return true;
             }
         }
         if (enemy.position.equals(this.getHead())) {
-            this.takeHit();
+            if (enemy.id === "DIO") {
+                let hitNumber = Math.max(Math.floor(this.tail.length / 3), 1);
+                console.log(hitNumber);
+                for (let i = 0; i < hitNumber; i++) {
+                    this.takeHit();
+                }
+            } else {
+                this.takeHit();
+            }
             this.enemies.splice(index, 1);
             enemy.onDeath();
             return true;

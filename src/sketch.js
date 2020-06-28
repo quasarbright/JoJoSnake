@@ -91,11 +91,13 @@ function setup() {
     curStage = new Home();
     createCanvas(800, 800);
     frameRate(60);
-    let _enemyInfos = [
+    let _enemyInfos;
+    _enemyInfos = [
         {
             img: dioImg, onSpawn: () => {
                 DIOSPAWNSOUND.play();
             }, onDeath: () => {
+                DIOSPAWNSOUND.stop();
                 MUDAMUDASOUND.play();
             }, health: 15, power: (outerGame) => {
                 // ZA WARUDO
@@ -181,6 +183,7 @@ function setup() {
             img: dioImg, onSpawn: () => {
                 DIOSPAWNSOUND.play();
             }, onDeath: () => {
+                DIOSPAWNSOUND.stop();
                 MUDAMUDASOUND.play();
             }, health: 15, power: (outerGame) => {
                 // ZA WARUDO
