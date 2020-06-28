@@ -74,33 +74,6 @@ class Game extends GameStage {
 
     static SILVER_CHARIOT_STREAK_REQUIREMENT = 5
 
-<<<<<<< HEAD
-    _nextFrame = function* (game) {
-        while (true) {
-            if (playerMoveCount % PLAYERTICKRATE === 0) {
-                if (game.movementQueue.length === 0) {
-                    game.movePlayer(game.lastMove);
-                }
-                for (let move of game.movementQueue) {
-                    game.lastMove = move;
-                    game.movePlayer(move);
-                }
-                game.movementQueue = [];
-            }
-            enemyMoveCount += 1;
-            enemyMoveCount %= ENEMYTICKRATE;
-            playerMoveCount += 1;
-            playerMoveCount %= PLAYERTICKRATE;
-
-            game.updateEnemies();
-            game.updateAllies()
-
-            yield;
-        }
-    };
-=======
->>>>>>> 5070ed1... dio fix, no more organ transplants, beginning of zawarudo animation
-
     constructor() {
         super();
         // first ele is head, rest is tail
@@ -216,19 +189,6 @@ class Game extends GameStage {
 
         fill(255, 255, 255);
 
-<<<<<<< HEAD
-=======
-        let that = this
-
-        function drawSegment(prev, curr, next) {
-            if (prev === undefined) {
-                prev = p5.Vector.add(vectorOfDirection(that.lastMove), curr)
-            }
-
-        }
-
->>>>>>> 5070ed1... dio fix, no more organ transplants, beginning of zawarudo animation
-        let tail = this.tail;
         for (let i = 0; i < this.tail.length; i++) {
             push()
             imageMode(CENTER)
