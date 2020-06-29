@@ -94,12 +94,18 @@ function taxiDistance(vector1, vector2) {
     })(p5.Vector.sub(vector1, vector2));
 }
 
+let invertFactorExpand = {start: 0, end: 1, property: "factor"}
+let invertFactorContract = {start: 1, end: 0, property: "factor"}
+let expand;
+let contract;
+let curAnimationStage;
+
 function setup() {
     curStage = new Home();
     createCanvas(800, 800);
     frameRate(60);
     let _enemyInfos;
-    _enemyInfos = [
+    enemyInfos = [
         {
             img: dioImg, onSpawn: () => {
                 backgroundImg = dioBackgroundImg;
@@ -110,17 +116,21 @@ function setup() {
                 MUDAMUDASOUND.play();
             }, health: 15, power: (outerGame) => {
                 let targetPos = outerGame.dio.toiletSeeker ? outerGame.fruitPos : outerGame.getHead();
-                console.log(targetPos);
                 const distance = taxiDistance(targetPos, outerGame.dio.position)
                 if (distance < ZAWARDUODISTANCE && !outerGame.dio.hasFruit) {
+                    expand = new AnimationStage([invertFactorExpand], 1, 2);
+                    contract = new AnimationStage([invertFactorContract], 0, 2);
+                    expand.nextStage = contract;
+                    curAnimationStage = expand;
                     zaWarudoTicks = 0;
                     backgroundMusic.pause();
                     DIOSPAWNSOUND.stop();
                     ZAWARUDOSOUND.play();
                     outerGame.dioTimeStopped = true;
-                    outerGame.inversionFactor = 0.01; // start the inversion
+                    outerGame.inversionFactor = 0;
+                    outerGame.inversionInProgress = true;
                     setTimeout(() => {
-                        outerGame.inversionFactor = 0.0;
+                        outerGame.inversionInProgress = false;
                         enemyMoveCount = 0; // hijack enemy move count and frame generator
                     }, 4000);
                 }
@@ -128,7 +138,7 @@ function setup() {
             id: "DIO"
         }
     ]
-    enemyInfos = [
+    _enemyInfos = [
         // img, onSpawn, onDeath, health
         {
             img: alessiImg, onSpawn: () => null, onDeath: () => null, health: 5, id: "ALESSI", power: (outerGame) => {
@@ -185,6 +195,7 @@ function setup() {
         {img: judgementImg, onSpawn: () => null, onDeath: () => null, health: 10, id: "JUDGEMENT"},
         {img: iggyImg, onSpawn: () => null, onDeath: () => null, health: 10, id: "IGGY"}
     ]
+
 }
 
 function draw() {
