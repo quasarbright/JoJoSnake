@@ -65,7 +65,7 @@ class Home extends GameStage {
     processMouse() {
         this.playPressed = true;
         userStartAudio();
-        backgroundMusic.setVolume(0.4)
+        backgroundMusic.setVolume(0.2)
         backgroundMusic.loop();
     }
 }
