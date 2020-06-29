@@ -185,7 +185,8 @@ class Game extends GameStage {
 
     draw() {
 
-        image(backgroundImg, 0, 0, width, height)
+        image(backgroundImg, 0, 0, width, height);
+        background(0, 200);
 
         fill(255, 255, 255);
 
@@ -283,6 +284,8 @@ class Game extends GameStage {
         }
 
         image(toiletImg, this.fruitPos.x * tileWidth, this.fruitPos.y * tileHeight, tileWidth, tileHeight);
+
+
 
         if (this.dioTimeStopped) {
             if (this.inversionFactor > 0) {
