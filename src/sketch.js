@@ -105,7 +105,7 @@ function setup() {
     createCanvas(800, 800);
     frameRate(60);
     let _enemyInfos;
-    enemyInfos = [
+    _enemyInfos = [
         {
             img: dioImg, onSpawn: () => {
                 backgroundImg = dioBackgroundImg;
@@ -138,7 +138,7 @@ function setup() {
             id: "DIO"
         }
     ]
-    _enemyInfos = [
+    enemyInfos = [
         // img, onSpawn, onDeath, health
         {
             img: alessiImg, onSpawn: () => null, onDeath: () => null, health: 5, id: "ALESSI", power: (outerGame) => {
@@ -171,17 +171,21 @@ function setup() {
                 MUDAMUDASOUND.play();
             }, health: 15, power: (outerGame) => {
                 let targetPos = outerGame.dio.toiletSeeker ? outerGame.fruitPos : outerGame.getHead();
-                console.log(targetPos);
                 const distance = taxiDistance(targetPos, outerGame.dio.position)
                 if (distance < ZAWARDUODISTANCE && !outerGame.dio.hasFruit) {
+                    expand = new AnimationStage([invertFactorExpand], 1, 2);
+                    contract = new AnimationStage([invertFactorContract], 0, 2);
+                    expand.nextStage = contract;
+                    curAnimationStage = expand;
                     zaWarudoTicks = 0;
                     backgroundMusic.pause();
                     DIOSPAWNSOUND.stop();
                     ZAWARUDOSOUND.play();
                     outerGame.dioTimeStopped = true;
-                    outerGame.inversionFactor = 0.01; // start the inversion
+                    outerGame.inversionFactor = 0;
+                    outerGame.inversionInProgress = true;
                     setTimeout(() => {
-                        outerGame.inversionFactor = 0.0;
+                        outerGame.inversionInProgress = false;
                         enemyMoveCount = 0; // hijack enemy move count and frame generator
                     }, 4000);
                 }
