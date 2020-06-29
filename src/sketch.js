@@ -16,6 +16,15 @@ let silverChariotSound;
 let flushSound;
 let lalihoSound;
 let babySound;
+let alessiSpawnSound, alessiDeathSound
+let anubisSpawnSound, anubisDeathSound
+let devoSpawnSound, devoDeathSound
+let enyaSpawnSound, enyaDeathSound
+let holSpawnSound, holDeathSound
+let geilSpawnSound, geilDeathSound
+let creamSpawnSound, creamDeathSound
+let judgementSpawnSound, judgementDeathSound
+let iggySpawnSound, iggyDeathSound
 
 let toiletImg;
 let backgroundImg;
@@ -53,15 +62,33 @@ function preload() {
     // load sound effects
     ZAWARUDOSOUND = loadSound("sounds/ZAWARUDO.mp3");
     flushSound = loadSound("sounds/flush.mp3")
-
+    
     // load onspawn sounds
     silverChariotSound = loadSound("sounds/silver_chariot.mp3")
     DIOSPAWNSOUND = loadSound("sounds/DIOSPAWN.mp3");
     lalihoSound = loadSound("sounds/laliho.mp3")
+    alessiSpawnSound = loadSound("sounds/alessi_spawn.mp3")
+    anubisSpawnSound = loadSound("sounds/anubis_spawn.mp3")
+    devoSpawnSound = loadSound("sounds/devo_spawn.mp3")
+    enyaSpawnSound = loadSound("sounds/enya_spawn.mp3")
+    holSpawnSound = loadSound("sounds/hol_spawn.mp3")
+    geilSpawnSound = loadSound("sounds/geil_spawn.mp3")
+    creamSpawnSound = loadSound("sounds/cream_spawn.mp3")
+    judgementSpawnSound = loadSound("sounds/judgement_spawn.mp3")
+    iggySpawnSound = loadSound("sounds/iggy_spawn.mp3")
 
     // load ondeath sounds
     MUDAMUDASOUND = loadSound("sounds/DIODEATHMUDA.mp3")
     babySound = loadSound("sounds/baby.mp3")
+    alessiDeathSound = loadSound("sounds/alessi_death.mp3")
+    anubisDeathSound = loadSound("sounds/anubis_death.mp3")
+    devoDeathSound = loadSound("sounds/devo_death.mp3")
+    enyaDeathSound = loadSound("sounds/enya_death.mp3")
+    holDeathSound = loadSound("sounds/hol_death.mp3")
+    geilDeathSound = loadSound("sounds/geil_death.mp3")
+    creamDeathSound = loadSound("sounds/cream_death.mp3")
+    judgementDeathSound = loadSound("sounds/judgement_death.mp3")
+    iggyDeathSound = loadSound("sounds/iggy_death.mp3")
 
     // load images
     toiletImg = loadImage('images/toilet.png');
@@ -141,12 +168,12 @@ function setup() {
     _enemyInfos = [
         // img, onSpawn, onDeath, health
         {
-            img: alessiImg, onSpawn: () => null, onDeath: () => null, health: 5, id: "ALESSI", power: (outerGame) => {
+            img: alessiImg, onSpawn: () => alessiSpawnSound.play(), onDeath: () => alessiDeathSound.play(), health: 5, id: "ALESSI", power: (outerGame) => {
 
             }
         },
         {
-            img: anubisImg, onSpawn: () => null, onDeath: () => null, health: 6, id: "ANUBIS", power: (outerGame) => {
+            img: anubisImg, onSpawn: () => anubisSpawnSound.play(), onDeath: () => anubisDeathSound.play(), health: 6, id: "ANUBIS", power: (outerGame) => {
 
             }
         },
@@ -160,7 +187,7 @@ function setup() {
 
             }
         },
-        {img: devoImg, onSpawn: () => null, onDeath: () => null, health: 8, id: "DEVO"},
+        {img: devoImg, onSpawn: () => devoSpawnSound.play(), onDeath: () => devoDeathSound.play(), health: 8, id: "DEVO"},
         {
             img: dioImg, onSpawn: () => {
                 backgroundImg = dioBackgroundImg;
@@ -188,12 +215,12 @@ function setup() {
             },
             id: "DIO"
         },
-        {img: enyaImg, onSpawn: () => null, onDeath: () => null, health: 9, id: "ENYA"},
-        {img: holImg, onSpawn: () => null, onDeath: () => null, health: 5, id: "HOL"},
-        {img: geilImg, onSpawn: () => null, onDeath: () => null, health: 10, id: 'GEIL'},
-        {img: creamImg, onSpawn: () => null, onDeath: () => null, health: 11, id: "CREAM"},
-        {img: judgementImg, onSpawn: () => null, onDeath: () => null, health: 10, id: "JUDGEMENT"},
-        {img: iggyImg, onSpawn: () => null, onDeath: () => null, health: 10, id: "IGGY"}
+        {img: enyaImg, onSpawn: () => enyaSpawnSound.play(), onDeath: () => enyaDeathSound.play(), health: 9, id: "ENYA"},
+        {img: holImg, onSpawn: () => holSpawnSound.play(), onDeath: () => holDeathSound.play(), health: 5, id: "HOL"},
+        {img: geilImg, onSpawn: () => geilSpawnSound.play(), onDeath: () => geilDeathSound.play(), health: 10, id: 'GEIL'},
+        {img: creamImg, onSpawn: () => creamSpawnSound.play(), onDeath: () => creamDeathSound.play(), health: 11, id: "CREAM"},
+        {img: judgementImg, onSpawn: () => judgementSpawnSound.play(), onDeath: () => judgementDeathSound.play(), health: 10, id: "JUDGEMENT"},
+        {img: iggyImg, onSpawn: () => iggySpawnSound.play(), onDeath: () => iggyDeathSound.play(), health: 10, id: "IGGY"}
     ]
 
 }
