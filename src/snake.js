@@ -129,7 +129,7 @@ class Game extends GameStage {
         this._dioNextFrame = function* (game) {
             while (true) {
                 console.log(game.inversionFactor);
-                if (game.inversionFactor === 0 && game.dioTimeStopped) {
+                if (!game.inversionInProgress && game.dioTimeStopped) {
                     if (zaWarudoTicks <= ENEMYTICKRATE * ZAWARDUODISTANCE) {
                         // update enemies
                         enemyMoveCount += 1;
@@ -285,9 +285,15 @@ class Game extends GameStage {
         image(toiletImg, this.fruitPos.x * tileWidth, this.fruitPos.y * tileHeight, tileWidth, tileHeight);
 
         if (this.dioTimeStopped) {
-            if (this.inversionFactor > 0) {
-                let widthAmt = width * this.inversionFactor;
-                let heightAmt = height * this.inversionFactor;
+            curAnimationStage = curAnimationStage.tick();
+            console.log("curTime: " + curAnimationStage.curTime);
+            console.log("startTime: " + curAnimationStage.startTime);
+            if (this.inversionInProgress && curAnimationStage.curTime > curAnimationStage.startTime && curAnimationStage.curTime < curAnimationStage.endTime) {
+                // calculate new inversion factor
+                this.inversionFactor = curAnimationStage.view().factor;
+                console.log(this.inversionFactor);
+                let widthAmt = Math.ceil(width * this.inversionFactor);
+                let heightAmt = Math.ceil(height * this.inversionFactor);
                 let centerX = width / 2;
                 let centerY = height / 2;
                 let x = centerX - (widthAmt / 2);
@@ -296,17 +302,6 @@ class Game extends GameStage {
                 filter(INVERT);
                 image(cutOut, x, y);
                 filter(INVERT);
-
-                // calculate new inversion factor
-                console.log("inversion factor: " + this.inversionFactor);
-                let time = this.inversionFactor * 4.0;
-                console.log("current time: " + time);
-                console.log("delta time: " + deltaTime);
-                time += (deltaTime/1000);
-                console.log("new time: " + time);
-                this.inversionFactor = lerp(0, 1, time / 4);
-                console.log("new inversion factor: " + this.inversionFactor);
-                console.log("");
             }
         }
     }
@@ -545,7 +540,7 @@ class Game extends GameStage {
         let position = this.generatePositionNotInTail()
         let enemy = new Enemy(position, info.id, info.img, info.onSpawn, info.onDeath, info.health, info.power)
         if (enemy.id === "DIO") {
-            if (this.dio !== undefined) {
+            if (this.enemies.find((enemy) => enemy.id === "DIO") !== undefined) {
                 this.spawnEnemy();
                 return;
             } else {
