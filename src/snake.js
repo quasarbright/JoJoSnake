@@ -161,7 +161,7 @@ class Game extends GameStage {
             curStage = new Game();
             backgroundImg = normalBackgroundImg;
             backgroundMusic.stop();
-            backgroundMusic.play(0);
+            backgroundMusic.loop(0);
             restart = false;
         }
 
