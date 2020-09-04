@@ -83,7 +83,7 @@ class Home extends GameStage {
     processMouse() {
         this.playPressed = true;
         userStartAudio();
-        backgroundMusic.setVolume(0.4)
+        backgroundMusic.setVolume(0.2)
         backgroundMusic.loop();
     }
 }
@@ -180,7 +180,7 @@ class Game extends GameStage {
             curStage = new Game();
             backgroundImg = normalBackgroundImg;
             backgroundMusic.stop();
-            backgroundMusic.play(0);
+            backgroundMusic.loop(0);
             restart = false;
         }
 
