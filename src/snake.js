@@ -49,14 +49,20 @@ class Home extends GameStage {
 
     playPressed;
 
+    speed = 5;
+
     constructor() {
         super();
-        let diagonal = new AnimationStage([{start: 0, end: 1, property: "factor"}], 0, 3);
-        let upHeight = new AnimationStage([{start: height, end: 0, property: "height"}], 0, 3);
-        let leftDownDiagonal = new AnimationStage([{start: height, end: 0, property: "height"}], 0, 3);
 
-        this.stage = new AnimationStage([{start: 0, end: 1, property: "factor"}], 0, 3)
+        this.stage = new AnimationStage([{start: 0, end: 1, property: "factor"}, {start: 0, end: 2 * PI, property: "rotation"}], 0, 3)
         this.stage.nextStage = this.stage;
+
+        this.homeInfos = []
+        for (let enemy of enemyInfos) {
+            enemy.direction = p5.Vector.random2D();
+            enemy.position = createVector(width/2, height/2);
+            this.homeInfos.push(enemy);
+        }
     }
 
     nextStage() {
@@ -70,21 +76,67 @@ class Home extends GameStage {
     draw() {
 
         fill(0, 255, 0);
-        background(200, 255);
+        image(backgroundImg, 0, 0, width, height);
+        background(0, 200);
         this.stage.tick();
-        let factor = this.stage.view().factor;
-        let x = width * factor;
-        console.log(x);
-        textSize(64);
-        text("Click to play!", x, x)
+        let view = this.stage.view();
+        let rotation = view.rotation;
+        let factor = view.factor;
+        let y = sin(rotation) * (width/2);
+        let x = cos(rotation) * (width/2);
+        image(polBottom, x + width/2, y + width/2, 100, 100);
+        
+        y = sin(-1 * rotation) * (width/2);
+        x = cos(rotation) * (width/2);
+        image(polMiddle, x + width/2, y + width/2, 100, 100);
+
+        y = sin(rotation % PI) * (width/2);
+        x = cos(rotation % PI) * (width/2);
+        image(polCorner, x + width/2, y + width/2, 100, 100);
+
+        y = sin(-1 * rotation % PI) * (width/2);
+        x = cos(-1 * rotation % PI) * (width/2);
+        image(polTop, x + width/2, y + width/2, 100, 100);
+
         // triangle(x, x, x + 15, x + 15, x - 15, x - 15);
+
+        for (let info of this.homeInfos) {
+            image(info.img, info.position.x, info.position.y, width/6, height/6);
+            info.position = p5.Vector.add(info.position, createVector(info.direction.x * this.speed, info.direction.y * this.speed))
+            this.checkBounds(info);
+        }
+
+        textSize(64);
+        textAlign(CENTER)
+        text("Click to play!", width/2, width/2)
     }
 
     processMouse() {
         this.playPressed = true;
         userStartAudio();
-        backgroundMusic.setVolume(0.2)
+        backgroundMusic.setVolume(0.8)
         backgroundMusic.loop();
+    }
+
+    checkBounds(info) {
+        let iconWidth = width/6;
+
+        if (info.position.x > (width - iconWidth)) {
+            info.position.x = width - iconWidth;
+            info.direction.x = -1 * info.direction.x;
+        }
+        if (info.position.x < 0) {
+            info.position.x = 0;
+            info.direction.x = -1 * info.direction.x;
+        } 
+        if (info.position.y > (height - iconWidth)) {
+            info.position.y = height - iconWidth;
+            info.direction.y = -1 * info.direction.y;
+        }
+        if (info.position.y < 0) {
+            info.position.y = 0;
+            info.direction.y = -1 * info.direction.y;
+        }
     }
 }
 
@@ -146,7 +198,6 @@ class Game extends GameStage {
         }(this);
         this._dioNextFrame = function* (game) {
             while (true) {
-                console.log(game.inversionFactor);
                 if (!game.inversionInProgress && game.dioTimeStopped) {
                     if (zaWarudoTicks <= ENEMYTICKRATE * ZAWARDUODISTANCE) {
                         // update enemies
@@ -323,12 +374,9 @@ class Game extends GameStage {
 
         if (this.dioTimeStopped) {
             curAnimationStage = curAnimationStage.tick();
-            console.log("curTime: " + curAnimationStage.curTime);
-            console.log("startTime: " + curAnimationStage.startTime);
             if (this.inversionInProgress && curAnimationStage.curTime > curAnimationStage.startTime && curAnimationStage.curTime < curAnimationStage.endTime) {
                 // calculate new inversion factor
                 this.inversionFactor = curAnimationStage.view().factor;
-                console.log(this.inversionFactor);
                 let widthAmt = Math.ceil(width * this.inversionFactor);
                 let heightAmt = Math.ceil(height * this.inversionFactor);
                 let centerX = width / 2;
@@ -543,7 +591,6 @@ class Game extends GameStage {
         if (enemy.position.equals(this.getHead())) {
             if (enemy.id === "DIO") {
                 let hitNumber = Math.max(Math.floor(this.tail.length / 3), 1);
-                console.log(hitNumber);
                 for (let i = 0; i < hitNumber; i++) {
                     this.takeHit();
                 }
@@ -583,8 +630,6 @@ class Game extends GameStage {
                 this.spawnEnemy();
                 return;
             } else {
-                console.log("setting dio");
-                console.log(enemy);
                 this.dio = enemy;
             }
         }

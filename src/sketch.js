@@ -128,7 +128,6 @@ let contract;
 let curAnimationStage;
 
 function setup() {
-    curStage = new Home();
     createCanvas(800, 800);
     frameRate(60);
     let _enemyInfos;
@@ -226,6 +225,7 @@ function setup() {
         {img: judgementImg, onSpawn: () => judgementSpawnSound.play(), onDeath: () => judgementDeathSound.play(), health: 10, id: "JUDGEMENT"},
         {img: iggyImg, onSpawn: () => iggySpawnSound.play(), onDeath: () => iggyDeathSound.play(), health: 10, id: "IGGY"}
     ]
+    curStage = new Home();
 
 }
 
