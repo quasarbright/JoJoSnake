@@ -14,6 +14,7 @@ let zaWarudoTicks = 0; // for how long zawarudo has been going for
 let backgroundMusic;
 let silverChariotSound;
 let flushSound;
+let fMegaSound;
 let lalihoSound;
 let babySound;
 let alessiSpawnSound, alessiDeathSound
@@ -30,6 +31,7 @@ let toiletImg;
 let backgroundImg;
 let dioBackgroundImg;
 let normalBackgroundImg; // for swapping purposes
+let deathImg;
 let keyFrameMode = false;
 let nextFrameRequested = false;
 let restart = false;
@@ -62,6 +64,7 @@ function preload() {
     // load sound effects
     ZAWARUDOSOUND = loadSound("sounds/ZAWARUDO.mp3");
     flushSound = loadSound("sounds/flush.mp3")
+    fMegaSound = loadSound("sounds/f-mega.mp3")
     
     // load onspawn sounds
     silverChariotSound = loadSound("sounds/silver_chariot.mp3")
@@ -95,6 +98,7 @@ function preload() {
     backgroundImg = loadImage('images/lean.jpg')
     dioBackgroundImg = loadImage('images/diobg.png')
     normalBackgroundImg = backgroundImg
+    deathImg = loadImage('images/sadnareff.jpg')
     alessiImg = loadImage('images/alessi.png')
     anubisImg = loadImage('images/anubis.png')
     death_13Img = loadImage('images/death_13.png')
