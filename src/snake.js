@@ -140,6 +140,37 @@ class Home extends GameStage {
     }
 }
 
+class End extends GameStage {
+    clicked = false
+
+    constructor() {
+        super()
+        fMegaSound.play()
+    }
+
+    nextStage() {
+        if(this.clicked) {
+            fMegaSound.stop()
+            backgroundMusic.loop()
+            return new Game()
+        } else {
+            return this
+        }
+    }
+
+    draw() {
+        image(deathImg, 0, 0, width, height)
+        textAlign(CENTER)
+        fill(255,0,0)
+        textSize(64)
+        text("Click to restart", width/2, height/2)
+    }
+
+    processMouse() {
+        this.clicked = true
+    }
+}
+
 class Game extends GameStage {
 
     static SILVER_CHARIOT_STREAK_REQUIREMENT = 5
@@ -392,7 +423,11 @@ class Game extends GameStage {
     }
 
     nextStage() {
-        return this;
+        if(this.dead) {
+            return new End();
+        } else {
+            return this;
+        }
     }
 
     processKey() {
