@@ -109,6 +109,7 @@ class Home extends GameStage {
         textSize(64);
         textAlign(CENTER)
         text("Click to play!", width/2, width/2)
+        textAlign(LEFT)
     }
 
     processMouse() {
@@ -146,6 +147,7 @@ class End extends GameStage {
     constructor() {
         super()
         fMegaSound.play()
+        backgroundMusic.stop()
     }
 
     nextStage() {
@@ -164,6 +166,7 @@ class End extends GameStage {
         fill(255,0,0)
         textSize(64)
         text("Click to restart", width/2, height/2)
+        textAlign(LEFT)
     }
 
     processMouse() {
