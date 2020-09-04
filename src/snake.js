@@ -49,6 +49,16 @@ class Home extends GameStage {
 
     playPressed;
 
+    constructor() {
+        super();
+        let diagonal = new AnimationStage([{start: 0, end: 1, property: "factor"}], 0, 3);
+        let upHeight = new AnimationStage([{start: height, end: 0, property: "height"}], 0, 3);
+        let leftDownDiagonal = new AnimationStage([{start: height, end: 0, property: "height"}], 0, 3);
+
+        this.stage = new AnimationStage([{start: 0, end: 1, property: "factor"}], 0, 3)
+        this.stage.nextStage = this.stage;
+    }
+
     nextStage() {
         if (this.playPressed) {
             return new Game();
@@ -58,8 +68,16 @@ class Home extends GameStage {
     }
 
     draw() {
+
         fill(0, 255, 0);
-        triangle(width / 2, width / 2, width / 2 + 15, width / 2 + 15, width / 2 + 15, width / 2);
+        background(200, 255);
+        this.stage.tick();
+        let factor = this.stage.view().factor;
+        let x = width * factor;
+        console.log(x);
+        textSize(64);
+        text("Click to play!", x, x)
+        // triangle(x, x, x + 15, x + 15, x - 15, x - 15);
     }
 
     processMouse() {
@@ -140,6 +158,7 @@ class Game extends GameStage {
                             if (dead) {
                                 // do some stuff
                                 game.dioTimeStopped = false;
+                                backgroundMusic.play();
                                 yield;
                             }
                         }
@@ -285,7 +304,22 @@ class Game extends GameStage {
 
         image(toiletImg, this.fruitPos.x * tileWidth, this.fruitPos.y * tileHeight, tileWidth, tileHeight);
 
-
+        // score screen
+        textSize(16);
+        let score = `Score: ${this.tail.length}`
+        let rectYOffset = textAscent()
+        text(score, 5, rectYOffset)
+        let scoreWidth = textWidth(score);
+        let streakStr = "Streak: ";
+        let streakWidth = textWidth(streakStr);
+        let outerRectWidth = width / 5.0;
+        let innerRectWidth = (outerRectWidth * (Math.min(Game.SILVER_CHARIOT_STREAK_REQUIREMENT, this.streak) / Game.SILVER_CHARIOT_STREAK_REQUIREMENT));
+        fill(0, 255, 0)
+        text(streakStr, scoreWidth + 10, rectYOffset);
+        fill(128, 128, 128);
+        rect(scoreWidth + streakWidth + 10, 5, outerRectWidth, 10);
+        fill(0, 255, 0);
+        rect(scoreWidth + streakWidth + 10, 5, innerRectWidth, 10);
 
         if (this.dioTimeStopped) {
             curAnimationStage = curAnimationStage.tick();
@@ -478,15 +512,17 @@ class Game extends GameStage {
             return;
         }
         // check if enemies are at player
-        for (let i = this.enemies.length - 1; i >= 0; i--) {
-            let enemy = this.enemies[i]
-            let enemyDead = this.enemyInPlayerOrAlly(enemy);
-            if (!enemyDead) {
-                if (enemyMoveCount % ENEMYTICKRATE === 0) {
-                    enemy.move(this);
-                    enemy.power(this);
+        if (!this.dioTimeStopped) {
+            for (let i = this.enemies.length - 1; i >= 0; i--) {
+                let enemy = this.enemies[i]
+                let enemyDead = this.enemyInPlayerOrAlly(enemy);
+                if (!enemyDead) {
+                    if (enemyMoveCount % ENEMYTICKRATE === 0) {
+                        enemy.move(this);
+                        enemy.power(this);
+                    }
+                    this.enemyInPlayerOrAlly(enemy);
                 }
-                this.enemyInPlayerOrAlly(enemy);
             }
         }
     }

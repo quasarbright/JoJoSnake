@@ -20,8 +20,8 @@ const timeLerp = (animatable, curTime) => {
  *
  * @param Animatable objects are an object with a property key and then options defined:
  *  valid options are
- *  min: the minimum value to lerp from (default 0)
- *  max: the maximum value to lerp from (required)
+ *  start: the minimum value to lerp from (default 0)
+ *  end: the maximum value to lerp from (required)
  *  strategy: a function with signature (Animatable, time) => state, that returns the state of an animatable at a given
  *  time. Defaults to a standard time lerp.
  *
